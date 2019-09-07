@@ -31,10 +31,10 @@ protected function plugins()
 ```
 
 As soon as your plugin is registered, you should publish the 
-plugins static assets by running the following command:
+plugins static assets and migrations by running the following command:
 
 ```
-php artisan vendor:publish --provider="Vanguard\Announcements\Announcements" --tag="public"
+php artisan vendor:publish --provider="Vanguard\Announcements\Announcements" --tag="public" --tag="migrations"
 ```
 
 And, as the last step of the installation, you will need to

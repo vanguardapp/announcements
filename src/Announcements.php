@@ -55,7 +55,10 @@ class Announcements extends Plugin
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'announcements');
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'announcements');
         $this->loadJsonTranslationsFrom(__DIR__.'/../resources/lang');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        $this->publishes([
+            __DIR__ . '/../database/migrations' => database_path('migrations')
+        ], 'migrations');
 
         $this->mapRoutes();
 
