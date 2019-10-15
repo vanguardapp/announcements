@@ -3,6 +3,8 @@
 namespace Vanguard\Announcements;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
+use Parsedown;
 use Vanguard\User;
 
 class Announcement extends Model
@@ -23,6 +25,8 @@ class Announcement extends Model
 
     public function getParsedBodyAttribute()
     {
-        return \Illuminate\Mail\Markdown::parse($this->attributes['body']);
+        return new HtmlString(
+            (new Parsedown)->setSafeMode(true)->text($this->attributes['body'])
+        );
     }
 }
