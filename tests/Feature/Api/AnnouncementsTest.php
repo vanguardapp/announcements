@@ -7,8 +7,8 @@ use Facades\Tests\Setup\UserFactory;
 use Mail;
 use Tests\Feature\ApiTestCase;
 use Vanguard\Announcements\Announcement;
+use Vanguard\Announcements\Http\Resources\AnnouncementResource;
 use Vanguard\Announcements\Mail\AnnouncementEmail;
-use Vanguard\Announcements\Transformers\AnnouncementTransformer;
 
 class AnnouncementsTest extends ApiTestCase
 {
@@ -31,20 +31,19 @@ class AnnouncementsTest extends ApiTestCase
         $user = UserFactory::user()->create();
         $announcements = factory(Announcement::class)->times(11)->create();
 
-        $response = $this->actingAs($user, 'api')
-            ->getJson("/api/announcements")
+        $response = $this->actingAs($user, self::API_GUARD)
+            ->getJson("/api/announcements?per_page=10")
             ->assertOk();
 
-        $transformed = $this->transformCollection($announcements->take(10), new AnnouncementTransformer);
+        $transformed = AnnouncementResource::collection($announcements->take(10))->resolve();
 
-        $this->assertEquals($response->original['data'], $transformed);
-        $this->assertEquals($response->original['meta'], [
+        $this->assertEquals($response->json('data'), $transformed);
+        $this->assertEquals($response->json('meta'), [
             'current_page' => 1,
             'from' => 1,
             'to' => 10,
             'last_page' => 2,
-            'prev_page_url' => null,
-            'next_page_url' => url("api/announcements?page=2"),
+            'path' => url("api/announcements"),
             'total' => 11,
             'per_page' => 10
         ]);
@@ -53,7 +52,7 @@ class AnnouncementsTest extends ApiTestCase
     /** @test */
     public function paginate_announcements_with_more_records_per_page_than_allowed()
     {
-        $this->actingAs($this->validUser(), 'api')
+        $this->actingAs($this->validUser(), self::API_GUARD)
             ->getJson("/api/announcements?per_page=140")
             ->assertStatus(422);
     }
@@ -72,7 +71,7 @@ class AnnouncementsTest extends ApiTestCase
     {
         $user = UserFactory::user()->create();
 
-        $this->actingAs($user, 'api')
+        $this->actingAs($user, self::API_GUARD)
             ->postJson("/api/announcements", $this->validParams())
             ->assertForbidden();
 
@@ -85,13 +84,15 @@ class AnnouncementsTest extends ApiTestCase
         $user = $this->validUser();
         $data = $this->validParams();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($user, self::API_GUARD)
             ->postJson("/api/announcements", $data)
             ->assertStatus(201);
 
         $announcement = Announcement::first();
 
-        $response->assertExactJson((new AnnouncementTransformer)->transform($announcement));
+        $response->assertExactJson([
+            'data' => (new AnnouncementResource($announcement))->resolve()
+        ]);
 
         $this->assertEquals($user->id, $announcement->user_id);
         $this->assertEquals($data['title'], $announcement->title);
@@ -105,7 +106,7 @@ class AnnouncementsTest extends ApiTestCase
 
         $data = $this->validParams(['email_notification' => true]);
 
-        $this->actingAs($this->validUser(), 'api')
+        $this->actingAs($this->validUser(), self::API_GUARD)
             ->postJson('/api/announcements', $data)
             ->assertStatus(201);
 
@@ -121,7 +122,7 @@ class AnnouncementsTest extends ApiTestCase
     {
         $data = $this->validParams(['title' => '']);
 
-        $this->actingAs($this->validUser(), 'api')
+        $this->actingAs($this->validUser(), self::API_GUARD)
             ->postJson("/api/announcements", $data)
             ->assertStatus(422)
             ->assertJsonValidationErrors('title');
@@ -134,7 +135,7 @@ class AnnouncementsTest extends ApiTestCase
     {
         $data = $this->validParams(['body' => '']);
 
-        $this->actingAs($this->validUser(), 'api')
+        $this->actingAs($this->validUser(), self::API_GUARD)
             ->postJson("/api/announcements", $data)
             ->assertStatus(422)
             ->assertJsonValidationErrors('body');
@@ -157,10 +158,12 @@ class AnnouncementsTest extends ApiTestCase
         $user = UserFactory::user()->create();
         $announcement = factory(Announcement::class)->create();
 
-        $this->actingAs($user, 'api')
+        $this->actingAs($user, self::API_GUARD)
             ->getJson("/api/announcements/{$announcement->id}")
             ->assertOk()
-            ->assertExactJson((new AnnouncementTransformer)->transform($announcement));
+            ->assertExactJson([
+                'data' => (new AnnouncementResource($announcement))->resolve()
+            ]);
     }
 
     /** @test */
@@ -178,7 +181,7 @@ class AnnouncementsTest extends ApiTestCase
         $user = UserFactory::user()->create();
         $announcement = factory(Announcement::class)->create();
 
-        $this->actingAs($user, 'api')
+        $this->actingAs($user, self::API_GUARD)
             ->putJson("/api/announcements/{$announcement->id}", $this->validParams())
             ->assertForbidden();
     }
@@ -189,10 +192,12 @@ class AnnouncementsTest extends ApiTestCase
         $user = $this->validUser();
         $announcement = factory(Announcement::class)->create();
 
-        $this->actingAs($user, 'api')
+        $this->actingAs($user, self::API_GUARD)
             ->putJson("/api/announcements/{$announcement->id}", $this->validParams())
             ->assertOk()
-            ->assertExactJson((new AnnouncementTransformer)->transform($announcement->fresh()));
+            ->assertExactJson([
+                'data' => (new AnnouncementResource($announcement->fresh()))->resolve()
+            ]);
     }
 
     /** @test */
@@ -201,7 +206,7 @@ class AnnouncementsTest extends ApiTestCase
         $data = $this->validParams(['title' => '']);
         $announcement = factory(Announcement::class)->create();
 
-        $this->actingAs($this->validUser(), 'api')
+        $this->actingAs($this->validUser(), self::API_GUARD)
             ->putJson("/api/announcements/{$announcement->id}", $data)
             ->assertStatus(422)
             ->assertJsonValidationErrors('title');
@@ -213,7 +218,7 @@ class AnnouncementsTest extends ApiTestCase
         $data = $this->validParams(['body' => '']);
         $announcement = factory(Announcement::class)->create();
 
-        $this->actingAs($this->validUser(), 'api')
+        $this->actingAs($this->validUser(), self::API_GUARD)
             ->putJson("/api/announcements/{$announcement->id}", $data)
             ->assertStatus(422)
             ->assertJsonValidationErrors('body');
@@ -234,7 +239,7 @@ class AnnouncementsTest extends ApiTestCase
         $user = UserFactory::user()->create();
         $announcement = factory(Announcement::class)->create();
 
-        $this->actingAs($user, 'api')
+        $this->actingAs($user, self::API_GUARD)
             ->deleteJson("/api/announcements/{$announcement->id}")
             ->assertForbidden();
     }
@@ -244,7 +249,7 @@ class AnnouncementsTest extends ApiTestCase
     {
         $announcement = factory(Announcement::class)->create();
 
-        $this->actingAs($this->validUser(), 'api')
+        $this->actingAs($this->validUser(), self::API_GUARD)
             ->deleteJson("/api/announcements/{$announcement->id}")
             ->assertOk();
 
@@ -260,7 +265,7 @@ class AnnouncementsTest extends ApiTestCase
 
         Carbon::setTestNow(now());
 
-        $this->actingAs($user, 'api')
+        $this->actingAs($user, self::API_GUARD)
             ->post("/api/announcements/read");
 
         $this->assertEquals(

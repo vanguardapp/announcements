@@ -302,8 +302,8 @@ class AnnouncementsTest extends TestCase
 
         $this->actingAs($user)
             ->get('/')
-            ->assertSee('id="announcements-icon"')
-            ->assertSee('id="announcementsDropdown"')
+            ->assertSee('id="announcements-icon"', false)
+            ->assertSee('id="announcementsDropdown"', false)
             ->assertSee($data['title']);
     }
 
