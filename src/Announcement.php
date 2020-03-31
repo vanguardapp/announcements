@@ -4,7 +4,9 @@ namespace Vanguard\Announcements;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
-use Parsedown;
+use League\CommonMark\CommonMarkConverter;
+use League\CommonMark\Environment;
+use League\CommonMark\Extension\Table\TableExtension;
 use Vanguard\User;
 
 class Announcement extends Model
@@ -25,8 +27,16 @@ class Announcement extends Model
 
     public function getParsedBodyAttribute()
     {
+        $environment = Environment::createCommonMarkEnvironment();
+
+        $environment->addExtension(new TableExtension);
+
+        $converter = new CommonMarkConverter([
+            'allow_unsafe_links' => false,
+        ], $environment);
+
         return new HtmlString(
-            (new Parsedown)->setSafeMode(true)->text($this->attributes['body'])
+            $converter->convertToHtml($this->attributes['body'])
         );
     }
 }
