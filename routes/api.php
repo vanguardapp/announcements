@@ -12,7 +12,10 @@
 
 Route::group(['middleware' => 'auth'], function () {
     Route::apiResource('/announcements', 'AnnouncementsController')
+        ->except('show')
         ->names('announcements.api');
+
+    Route::get('announcements/{announcementId}', 'AnnouncementsController@show');
 
     Route::post('announcements/read', 'ReadAnnouncementsController@index');
 });

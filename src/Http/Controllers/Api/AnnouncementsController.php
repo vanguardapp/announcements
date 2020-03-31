@@ -3,11 +3,13 @@
 namespace Vanguard\Announcements\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Events\EmailNotificationRequested;
 use Vanguard\Announcements\Http\Requests\AnnouncementRequest;
+use Vanguard\Announcements\Http\Resources\AnnouncementResource;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
-use Vanguard\Announcements\Transformers\AnnouncementTransformer;
 use Vanguard\Http\Controllers\Api\ApiController;
 
 /**
@@ -33,20 +35,28 @@ class AnnouncementsController extends ApiController
     }
 
     /**
-     * Displays the plugin index page.
+     * Returns a paginated list of announcements.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      * @throws \Illuminate\Validation\ValidationException
      */
     public function index(Request $request)
     {
         $this->validate($request, ['per_page' => 'numeric|max:50']);
 
-        return $this->respondWithPagination(
-            $this->announcements->paginate($request->per_page ?? 10),
-            new AnnouncementTransformer
-        );
+        $announcements = QueryBuilder::for(Announcement::class)
+            ->allowedIncludes('user')
+            ->allowedFilters([
+                AllowedFilter::partial('title'),
+                AllowedFilter::partial('body'),
+                AllowedFilter::exact('user', 'user_id'),
+            ])
+            ->allowedSorts('title', 'created_at')
+            ->defaultSort('-created_at')
+            ->paginate($request->per_page);
+
+        return AnnouncementResource::collection($announcements);
     }
 
     /**
@@ -67,19 +77,22 @@ class AnnouncementsController extends ApiController
             EmailNotificationRequested::dispatch($announcement);
         }
 
-        return $this->setStatusCode(201)
-            ->respondWithItem($announcement, new AnnouncementTransformer);
+        return new AnnouncementResource($announcement);
     }
 
     /**
-     * Renders "view announcement" page.
+     * Returns a single announcement resource.
      *
-     * @param Announcement $announcement
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param $announcementId
+     * @return AnnouncementResource
      */
-    public function show(Announcement $announcement)
+    public function show($announcementId)
     {
-        return $this->respondWithItem($announcement, new AnnouncementTransformer);
+        $announcement = QueryBuilder::for(Announcement::where('id', $announcementId))
+            ->allowedIncludes('user')
+            ->first();
+
+        return new AnnouncementResource($announcement);
     }
 
     /**
@@ -97,7 +110,7 @@ class AnnouncementsController extends ApiController
             $request->body
         );
 
-        return $this->respondWithItem($announcement, new AnnouncementTransformer);
+        return new AnnouncementResource($announcement);
     }
 
     /**
