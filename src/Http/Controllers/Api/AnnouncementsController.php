@@ -4,6 +4,7 @@ namespace Vanguard\Announcements\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Events\EmailNotificationRequested;
@@ -46,7 +47,9 @@ class AnnouncementsController extends ApiController
         $this->validate($request, ['per_page' => 'numeric|max:50']);
 
         $announcements = QueryBuilder::for(Announcement::class)
-            ->allowedIncludes('user')
+            ->allowedIncludes([
+                AllowedInclude::relationship('user', 'creator')
+            ])
             ->allowedFilters([
                 AllowedFilter::partial('title'),
                 AllowedFilter::partial('body'),
@@ -89,7 +92,9 @@ class AnnouncementsController extends ApiController
     public function show($announcementId)
     {
         $announcement = QueryBuilder::for(Announcement::where('id', $announcementId))
-            ->allowedIncludes('user')
+            ->allowedIncludes([
+                AllowedInclude::relationship('user', 'creator')
+            ])
             ->first();
 
         return new AnnouncementResource($announcement);

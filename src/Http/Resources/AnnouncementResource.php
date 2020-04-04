@@ -23,7 +23,7 @@ class AnnouncementResource extends JsonResource
             'parsed_body' => (string) $this->parsed_body,
             'created_at' => (string) $this->created_at,
             'updated_at' => (string) $this->updated_at,
-            'user' => new UserResource($this->whenLoaded('user')),
+            'user' => new UserResource($this->whenLoaded('creator')),
         ];
     }
 }
