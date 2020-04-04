@@ -32,6 +32,7 @@ class Announcement extends Model
         $environment->addExtension(new TableExtension);
 
         $converter = new CommonMarkConverter([
+            'html_input' => 'escape',
             'allow_unsafe_links' => false,
         ], $environment);
 
