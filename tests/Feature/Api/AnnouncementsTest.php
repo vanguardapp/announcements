@@ -29,7 +29,7 @@ class AnnouncementsTest extends ApiTestCase
     public function any_authenticated_users_can_paginate_announcements()
     {
         $user = UserFactory::user()->create();
-        $announcements = factory(Announcement::class)->times(11)->create();
+        $announcements = Announcement::factory()->times(11)->create();
 
         $response = $this->actingAs($user, self::API_GUARD)
             ->getJson("/api/announcements?per_page=10")
@@ -146,7 +146,7 @@ class AnnouncementsTest extends ApiTestCase
     /** @test */
     public function guests_cannot_view_an_announcement()
     {
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->getJson("/api/announcements/{$announcement->id}")
             ->assertUnauthorized();
@@ -156,7 +156,7 @@ class AnnouncementsTest extends ApiTestCase
     public function authenticated_users_can_view_any_announcement()
     {
         $user = UserFactory::user()->create();
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->actingAs($user, self::API_GUARD)
             ->getJson("/api/announcements/{$announcement->id}")
@@ -169,7 +169,7 @@ class AnnouncementsTest extends ApiTestCase
     /** @test */
     public function guests_cannot_update_an_announcement()
     {
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->putJson("/api/announcements/{$announcement->id}", $this->validParams())
             ->assertUnauthorized();
@@ -179,7 +179,7 @@ class AnnouncementsTest extends ApiTestCase
     public function users_without_approprite_permission_cannot_update_an_announcement()
     {
         $user = UserFactory::user()->create();
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->actingAs($user, self::API_GUARD)
             ->putJson("/api/announcements/{$announcement->id}", $this->validParams())
@@ -190,7 +190,7 @@ class AnnouncementsTest extends ApiTestCase
     public function users_with_approprite_permission_can_update_an_announcement()
     {
         $user = $this->validUser();
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->actingAs($user, self::API_GUARD)
             ->putJson("/api/announcements/{$announcement->id}", $this->validParams())
@@ -204,7 +204,7 @@ class AnnouncementsTest extends ApiTestCase
     public function title_field_is_required_when_updating_an_announcement()
     {
         $data = $this->validParams(['title' => '']);
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->actingAs($this->validUser(), self::API_GUARD)
             ->putJson("/api/announcements/{$announcement->id}", $data)
@@ -216,7 +216,7 @@ class AnnouncementsTest extends ApiTestCase
     public function body_field_is_required_when_updating_an_announcement()
     {
         $data = $this->validParams(['body' => '']);
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->actingAs($this->validUser(), self::API_GUARD)
             ->putJson("/api/announcements/{$announcement->id}", $data)
@@ -227,7 +227,7 @@ class AnnouncementsTest extends ApiTestCase
     /** @test */
     public function guests_cannot_delete_an_announcement()
     {
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->deleteJson("/api/announcements/{$announcement->id}")
             ->assertUnauthorized();
@@ -237,7 +237,7 @@ class AnnouncementsTest extends ApiTestCase
     public function users_without_appropriate_permission_cannot_delete_an_announcement()
     {
         $user = UserFactory::user()->create();
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->actingAs($user, self::API_GUARD)
             ->deleteJson("/api/announcements/{$announcement->id}")
@@ -247,7 +247,7 @@ class AnnouncementsTest extends ApiTestCase
     /** @test */
     public function users_with_appropriate_permission_can_delete_an_announcement()
     {
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->actingAs($this->validUser(), self::API_GUARD)
             ->deleteJson("/api/announcements/{$announcement->id}")

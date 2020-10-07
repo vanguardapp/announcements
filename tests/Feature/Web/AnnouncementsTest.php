@@ -44,7 +44,7 @@ class AnnouncementsTest extends TestCase
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
-        factory(Announcement::class)->create([
+        Announcement::factory()->create([
             'user_id' => $user->id,
             'title' => 'Foo Announcement'
         ]);
@@ -143,7 +143,7 @@ class AnnouncementsTest extends TestCase
     /** @test */
     public function guests_cannot_view_an_announcement()
     {
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->get('/announcements/' . $announcement->id)
             ->assertRedirect('/login');
@@ -159,7 +159,7 @@ class AnnouncementsTest extends TestCase
 
         $data = Arr::except($this->validParams(['user_id' => $admin->id]), 'email_notification');
 
-        $announcement = factory(Announcement::class)->create($data);
+        $announcement = Announcement::factory()->create($data);
 
         $this->actingAs($user)->get('/announcements/' . $announcement->id)
             ->assertOk()
@@ -173,7 +173,7 @@ class AnnouncementsTest extends TestCase
     /** @test */
     public function guests_cannot_edit_announcements()
     {
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->get('/announcements/' . $announcement->id)->assertRedirect('login');
         $this->put('/announcements/' . $announcement->id, $this->validParams())->assertRedirect('login');
@@ -187,7 +187,7 @@ class AnnouncementsTest extends TestCase
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $data = $this->validParams();
 
@@ -206,7 +206,7 @@ class AnnouncementsTest extends TestCase
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $data = $this->validParams(['title' => '']);
 
@@ -222,7 +222,7 @@ class AnnouncementsTest extends TestCase
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $data = $this->validParams(['body' => '']);
 
@@ -236,7 +236,7 @@ class AnnouncementsTest extends TestCase
     /** @test */
     public function guests_cannot_delete_an_announcement()
     {
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->delete('/announcements/' . $announcement->id)->assertRedirect('login');
 
@@ -247,7 +247,7 @@ class AnnouncementsTest extends TestCase
     public function users_without_appropriate_permission_cannot_delete_an_announcement()
     {
         $user = UserFactory::user()->create();
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->actingAs($user)
             ->delete('/announcements/' . $announcement->id)
@@ -260,7 +260,7 @@ class AnnouncementsTest extends TestCase
     public function users_with_appropriate_permission_can_delete_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
-        $announcement = factory(Announcement::class)->create();
+        $announcement = Announcement::factory()->create();
 
         $this->actingAs($user)
             ->delete('/announcements/' . $announcement->id)
@@ -280,8 +280,8 @@ class AnnouncementsTest extends TestCase
     {
         $user = UserFactory::user()->create();
 
-        $announcementA = factory(Announcement::class)->create();
-        $announcementB = factory(Announcement::class)->create();
+        $announcementA = Announcement::factory()->create();
+        $announcementB = Announcement::factory()->create();
 
         $this->actingAs($user)
             ->get('/announcements/list')
@@ -298,7 +298,7 @@ class AnnouncementsTest extends TestCase
 
         $data = ['title' => 'some random announcement'];
 
-        factory(Announcement::class)->create($data);
+        Announcement::factory()->create($data);
 
         $this->actingAs($user)
             ->get('/')
@@ -310,7 +310,7 @@ class AnnouncementsTest extends TestCase
     /** @test */
     public function a_red_dot_indicator_is_displayed_if_user_has_unread_announcements()
     {
-        factory(Announcement::class)->create([
+        Announcement::factory()->create([
             'created_at' => now()->subMinutes(3)
         ]);
 

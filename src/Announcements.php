@@ -4,7 +4,6 @@ namespace Vanguard\Announcements;
 
 use Event;
 use Route;
-use Illuminate\Database\Eloquent\Factory;
 use Vanguard\Announcements\Events\EmailNotificationRequested;
 use Vanguard\Announcements\Hooks\NavbarItemsHook;
 use Vanguard\Announcements\Hooks\ScriptsHook;
@@ -65,8 +64,6 @@ class Announcements extends Plugin
         $this->registerHooks();
 
         $this->registerEventListeners();
-
-        $this->registerFactories();
 
         $this->publishAssets();
     }
@@ -138,16 +135,6 @@ class Announcements extends Plugin
         }
 
         Event::listen(EmailNotificationRequested::class, SendEmailNotification::class);
-    }
-
-    /**
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    private function registerFactories()
-    {
-        if (! $this->app->environment('production') && $this->app->runningInConsole()) {
-            $this->app->make(Factory::class)->load(__DIR__ . '/../database/factories');
-        }
     }
 
     /**

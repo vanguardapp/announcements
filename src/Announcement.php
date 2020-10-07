@@ -2,6 +2,7 @@
 
 namespace Vanguard\Announcements;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 use League\CommonMark\CommonMarkConverter;
@@ -11,6 +12,8 @@ use Vanguard\User;
 
 class Announcement extends Model
 {
+    use HasFactory;
+
     protected $table = 'announcements';
 
     protected $guarded = [];
