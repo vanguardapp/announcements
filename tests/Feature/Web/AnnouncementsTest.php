@@ -9,6 +9,7 @@ use Mail;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Vanguard\Announcements\Announcement;
+use Vanguard\Announcements\Database\Seeders\AnnouncementsDatabaseSeeder;
 use Vanguard\Announcements\Mail\AnnouncementEmail;
 
 class AnnouncementsTest extends TestCase
@@ -22,7 +23,7 @@ class AnnouncementsTest extends TestCase
         $this->artisan('db:seed', ['--class' => 'RolesSeeder']);
         $this->artisan('db:seed', ['--class' => 'PermissionsSeeder']);
         $this->artisan('db:seed', ['--class' => 'CountriesSeeder']);
-        $this->artisan('db:seed', ['--class' => 'AnnouncementsDatabaseSeeder']);
+        $this->artisan('db:seed', ['--class' => AnnouncementsDatabaseSeeder::class]);
     }
 
     /** @test */

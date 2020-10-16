@@ -7,6 +7,7 @@ use Facades\Tests\Setup\UserFactory;
 use Mail;
 use Tests\Feature\ApiTestCase;
 use Vanguard\Announcements\Announcement;
+use Vanguard\Announcements\Database\Seeders\AnnouncementsDatabaseSeeder;
 use Vanguard\Announcements\Http\Resources\AnnouncementResource;
 use Vanguard\Announcements\Mail\AnnouncementEmail;
 
@@ -16,7 +17,7 @@ class AnnouncementsTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->artisan('db:seed', ['--class' => 'AnnouncementsDatabaseSeeder']);
+        $this->artisan('db:seed', ['--class' => AnnouncementsDatabaseSeeder::class]);
     }
 
     /** @test */
@@ -38,14 +39,16 @@ class AnnouncementsTest extends ApiTestCase
         $transformed = AnnouncementResource::collection($announcements->take(10))->resolve();
 
         $this->assertEquals($response->json('data'), $transformed);
-        $this->assertEquals($response->json('meta'), [
-            'current_page' => 1,
-            'from' => 1,
-            'to' => 10,
-            'last_page' => 2,
-            'path' => url("api/announcements"),
-            'total' => 11,
-            'per_page' => 10
+        $response->assertJson([
+            'meta' => [
+                'current_page' => 1,
+                'from' => 1,
+                'to' => 10,
+                'last_page' => 2,
+                'path' => url("api/announcements"),
+                'total' => 11,
+                'per_page' => 10,
+            ]
         ]);
     }
 

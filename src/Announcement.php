@@ -8,6 +8,7 @@ use Illuminate\Support\HtmlString;
 use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Environment;
 use League\CommonMark\Extension\Table\TableExtension;
+use Vanguard\Announcements\Database\Factories\AnnouncementFactory;
 use Vanguard\User;
 
 class Announcement extends Model
@@ -42,5 +43,13 @@ class Announcement extends Model
         return new HtmlString(
             $converter->convertToHtml($this->attributes['body'])
         );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected static function newFactory()
+    {
+        return new AnnouncementFactory;
     }
 }

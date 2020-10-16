@@ -25,14 +25,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Vanguard\\Announcements\\": "src/"
+            "Vanguard\\Announcements\\": "src/",
+            "Vanguard\\Announcements\\Database\\Seeders\\": "database/seeders/",
+            "Vanguard\\Announcements\\Database\\Factories\\": "database/factories/"
         }
     },
      "autoload-dev": {
         "psr-4": {
-            "Vanguard\\Announcements\\Tests\\": "tests/",
-            "Vanguard\\Announcements\\Database\\Factories\\": "database/factories/",
-            "Vanguard\\Announcements\\Database\\Seeders\\": "database/seeders/"
+            "Vanguard\\Announcements\\Tests\\": "tests/"
         }
     }
 }
