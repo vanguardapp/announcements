@@ -14,7 +14,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('announcements/list', 'AnnouncementListController@index')
         ->name('announcements.list');
 
-    Route::post('announcements/read', 'ReadAnnouncementsController@index');
+    Route::post('announcements/read', 'ReadAnnouncementsController@index')
+        ->name('announcements.read');
 
     Route::resource('announcements', 'AnnouncementsController');
 });

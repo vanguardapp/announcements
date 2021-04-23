@@ -1,4 +1,4 @@
 $("#announcements-icon").click(function () {
-    $.post("/announcements/read");
+    $.post(read_announcements_endpoint);
     $(".announcements .activity-badge").remove();
 });
