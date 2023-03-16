@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": "^8.0.2|^8.1",
-        "vanguardapp/plugins": "^4.0",
+        "vanguardapp/plugins": "^5.0",
         "spatie/laravel-query-builder": "^5.0"
     },
     "require-dev": {
