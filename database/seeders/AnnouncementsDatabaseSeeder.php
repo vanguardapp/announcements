@@ -2,8 +2,8 @@
 
 namespace Vanguard\Announcements\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Seeder;
 use Vanguard\Permission;
 use Vanguard\Role;
 
@@ -22,7 +22,7 @@ class AnnouncementsDatabaseSeeder extends Seeder
             'name' => 'announcements.manage',
             'display_name' => 'Manage Announcements',
             'description' => '',
-            'removable' => false
+            'removable' => false,
         ]);
 
         Role::where('name', 'Admin')

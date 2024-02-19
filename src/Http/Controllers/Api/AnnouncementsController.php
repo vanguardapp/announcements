@@ -2,7 +2,9 @@
 
 namespace Vanguard\Announcements\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -15,40 +17,26 @@ use Vanguard\Http\Controllers\Api\ApiController;
 
 /**
  * Class AnnouncementsController
- * @package Vanguard\Announcements\Http\Controllers\Web
  */
 class AnnouncementsController extends ApiController
 {
-    /**
-     * @var AnnouncementsRepository
-     */
-    private $announcements;
-
-    /**
-     * AnnouncementsController constructor.
-     * @param AnnouncementsRepository $announcements
-     */
-    public function __construct(AnnouncementsRepository $announcements)
+    public function __construct(private readonly AnnouncementsRepository $announcements)
     {
-        $this->announcements = $announcements;
-
         $this->middleware('permission:announcements.manage')->except('index', 'show');
     }
 
     /**
      * Returns a paginated list of announcements.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $this->validate($request, ['per_page' => 'numeric|max:50']);
 
         $announcements = QueryBuilder::for(Announcement::class)
             ->allowedIncludes([
-                AllowedInclude::relationship('user', 'creator')
+                AllowedInclude::relationship('user', 'creator'),
             ])
             ->allowedFilters([
                 AllowedFilter::partial('title'),
@@ -64,11 +52,8 @@ class AnnouncementsController extends ApiController
 
     /**
      * Stores the announcement inside the database.
-     *
-     * @param AnnouncementRequest $request
-     * @return mixed
      */
-    public function store(AnnouncementRequest $request)
+    public function store(AnnouncementRequest $request): AnnouncementResource
     {
         $announcement = $this->announcements->createFor(
             auth()->user(),
@@ -85,15 +70,12 @@ class AnnouncementsController extends ApiController
 
     /**
      * Returns a single announcement resource.
-     *
-     * @param $announcementId
-     * @return AnnouncementResource
      */
-    public function show($announcementId)
+    public function show($announcementId): AnnouncementResource
     {
         $announcement = QueryBuilder::for(Announcement::where('id', $announcementId))
             ->allowedIncludes([
-                AllowedInclude::relationship('user', 'creator')
+                AllowedInclude::relationship('user', 'creator'),
             ])
             ->first();
 
@@ -102,12 +84,8 @@ class AnnouncementsController extends ApiController
 
     /**
      * Updates announcement details.
-     *
-     * @param Announcement $announcement
-     * @param AnnouncementRequest $request
-     * @return mixed
      */
-    public function update(Announcement $announcement, AnnouncementRequest $request)
+    public function update(Announcement $announcement, AnnouncementRequest $request): AnnouncementResource
     {
         $announcement = $this->announcements->update(
             $announcement,
@@ -120,11 +98,8 @@ class AnnouncementsController extends ApiController
 
     /**
      * Removes announcement from the system.
-     *
-     * @param Announcement $announcement
-     * @return mixed
      */
-    public function destroy(Announcement $announcement)
+    public function destroy(Announcement $announcement): JsonResponse
     {
         $this->announcements->delete($announcement);
 

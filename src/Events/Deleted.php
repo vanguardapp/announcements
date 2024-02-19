@@ -9,10 +9,7 @@ class Deleted
 {
     use Dispatchable;
 
-    public $announcement;
-
-    public function __construct(Announcement $announcement)
+    public function __construct(public Announcement $announcement)
     {
-        $this->announcement = $announcement;
     }
 }

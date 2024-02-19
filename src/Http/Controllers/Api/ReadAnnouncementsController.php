@@ -15,7 +15,7 @@ class ReadAnnouncementsController extends ApiController
     public function index()
     {
         auth()->user()->forceFill([
-            'announcements_last_read_at' => now()
+            'announcements_last_read_at' => now(),
         ])->save();
 
         return $this->respondWithSuccess();

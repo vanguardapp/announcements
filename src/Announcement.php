@@ -4,6 +4,7 @@ namespace Vanguard\Announcements;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\HtmlString;
 use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Environment\Environment;
@@ -11,6 +12,13 @@ use League\CommonMark\Extension\Table\TableExtension;
 use Vanguard\Announcements\Database\Factories\AnnouncementFactory;
 use Vanguard\User;
 
+/**
+ * @property int $id
+ * @property string $title
+ * @property string $body
+ * @property Carbon $created_at
+ * @property Carbon $deleted_at
+ */
 class Announcement extends Model
 {
     use HasFactory;
@@ -19,17 +27,17 @@ class Announcement extends Model
 
     protected $guarded = [];
 
-    public function creator()
+    public function creator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function wasReadBy(User $user)
+    public function wasReadBy(User $user): bool
     {
         return $user->announcements_last_read_at < $this->created_at;
     }
 
-    public function getParsedBodyAttribute()
+    public function getParsedBodyAttribute(): HtmlString
     {
         $environment = Environment::createCommonMarkEnvironment();
 
@@ -48,7 +56,7 @@ class Announcement extends Model
     /**
      * {@inheritDoc}
      */
-    protected static function newFactory()
+    protected static function newFactory(): AnnouncementFactory
     {
         return new AnnouncementFactory;
     }

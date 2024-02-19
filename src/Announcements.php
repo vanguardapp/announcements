@@ -8,21 +8,20 @@ use Vanguard\Announcements\Events\EmailNotificationRequested;
 use Vanguard\Announcements\Hooks\NavbarItemsHook;
 use Vanguard\Announcements\Hooks\ScriptsHook;
 use Vanguard\Announcements\Hooks\StylesHook;
+use Vanguard\Announcements\Listeners\ActivityLogSubscriber;
 use Vanguard\Announcements\Listeners\SendEmailNotification;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
 use Vanguard\Announcements\Repositories\EloquentAnnouncements;
 use Vanguard\Plugins\Plugin;
-use Vanguard\Support\Sidebar\Item;
-use Vanguard\Announcements\Listeners\ActivityLogSubscriber;
 use Vanguard\Plugins\Vanguard;
+use Vanguard\Support\Sidebar\Item;
 
 class Announcements extends Plugin
 {
     /**
      * A sidebar item for the plugin.
-     * @return Item|null
      */
-    public function sidebar()
+    public function sidebar(): ?Item
     {
         return Item::create(__('Announcements'))
             ->icon('fas fa-bullhorn')
@@ -34,7 +33,7 @@ class Announcements extends Plugin
     /**
      * Register plugin services.
      */
-    public function register()
+    public function register(): void
     {
         $this->app->singleton(AnnouncementsRepository::class, EloquentAnnouncements::class);
     }
@@ -42,20 +41,19 @@ class Announcements extends Plugin
     /**
      * Bootstrap services.
      *
-     * @return void
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function boot()
+    public function boot(): void
     {
         $this->registerViews();
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'announcements');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'announcements');
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'announcements');
         $this->loadJsonTranslationsFrom(__DIR__.'/../resources/lang');
 
         $this->publishes([
-            __DIR__ . '/../database/migrations' => database_path('migrations')
+            __DIR__.'/../database/migrations' => database_path('migrations'),
         ], 'migrations');
 
         $this->mapRoutes();
@@ -69,15 +67,13 @@ class Announcements extends Plugin
 
     /**
      * Register plugin views.
-     *
-     * @return void
      */
-    protected function registerViews()
+    protected function registerViews(): void
     {
         $viewsPath = __DIR__.'/../resources/views';
 
         $this->publishes([
-            $viewsPath => resource_path('views/vendor/plugins/announcements')
+            $viewsPath => resource_path('views/vendor/plugins/announcements'),
         ], 'views');
 
         $this->loadViewsFrom($viewsPath, 'announcements');
@@ -86,7 +82,7 @@ class Announcements extends Plugin
     /**
      * Map all plugin related routes.
      */
-    protected function mapRoutes()
+    protected function mapRoutes(): void
     {
         $this->mapWebRoutes();
 
@@ -98,34 +94,34 @@ class Announcements extends Plugin
     /**
      * Map web plugin related routes.
      */
-    protected function mapWebRoutes()
+    protected function mapWebRoutes(): void
     {
         Route::group([
             'namespace' => 'Vanguard\Announcements\Http\Controllers\Web',
             'middleware' => 'web',
         ], function () {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+            $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         });
     }
 
     /**
      * Map API plugin related routes.
      */
-    protected function mapApiRoutes()
+    protected function mapApiRoutes(): void
     {
         Route::group([
             'namespace' => 'Vanguard\Announcements\Http\Controllers\Api',
             'middleware' => 'api',
             'prefix' => 'api',
         ], function () {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+            $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
         });
     }
 
     /**
      * Register plugin event listeners.
      */
-    private function registerEventListeners()
+    private function registerEventListeners(): void
     {
         // Register activity log subscriber only if
         // UserActivity plugin is installed.
@@ -139,7 +135,7 @@ class Announcements extends Plugin
     /**
      * Register all necessary view hooks for the plugin.
      */
-    private function registerHooks()
+    private function registerHooks(): void
     {
         Vanguard::hook('navbar:items', NavbarItemsHook::class);
         Vanguard::hook('app:styles', StylesHook::class);
@@ -148,10 +144,8 @@ class Announcements extends Plugin
 
     /**
      * Publish public assets.
-     *
-     * @return void
      */
-    protected function publishAssets()
+    protected function publishAssets(): void
     {
         $this->publishes([
             realpath(__DIR__.'/../dist') => $this->app['path.public'].'/vendor/plugins/announcements',

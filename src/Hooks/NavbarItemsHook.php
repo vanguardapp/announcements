@@ -2,27 +2,20 @@
 
 namespace Vanguard\Announcements\Hooks;
 
+use Illuminate\Contracts\View\View;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
 use Vanguard\Plugins\Contracts\Hook;
 
 class NavbarItemsHook implements Hook
 {
-    /**
-     * @var AnnouncementsRepository
-     */
-    private $announcements;
-
-    public function __construct(AnnouncementsRepository $announcements)
+    public function __construct(private readonly AnnouncementsRepository $announcements)
     {
-        $this->announcements = $announcements;
     }
 
     /**
      * Execute the hook action.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function handle()
+    public function handle(): View
     {
         $announcements = $this->announcements->latest(5);
         $announcements->load('creator');

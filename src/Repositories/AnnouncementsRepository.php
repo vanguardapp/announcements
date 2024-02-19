@@ -2,6 +2,8 @@
 
 namespace Vanguard\Announcements\Repositories;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Vanguard\Announcements\Announcement;
 use Vanguard\User;
 
@@ -10,52 +12,32 @@ interface AnnouncementsRepository
     /**
      * Get latest announcements.
      *
-     * @param int $count
-     * @return mixed
+     * @return Collection<Announcement>
      */
-    public function latest($count = 5);
+    public function latest(int $count = 5): Collection;
 
     /**
      * Paginate announcements in descending order.
-     *
-     * @param int $perPage
-     * @return mixed
      */
-    public function paginate($perPage = 10);
+    public function paginate(int $perPage = 10): LengthAwarePaginator;
 
     /**
      * Create an announcement for user.
-     *
-     * @param User $user
-     * @param $title
-     * @param $body
-     * @return mixed
      */
-    public function createFor(User $user, $title, $body);
+    public function createFor(User $user, string $title, string $body): Announcement;
 
     /**
      * Find announcement by ID.
-     *
-     * @param $id
-     * @return mixed
      */
-    public function find($id);
+    public function find(int $id): ?Announcement;
 
     /**
      * Update announcement.
-     *
-     * @param Announcement $announcement
-     * @param $title
-     * @param $body
-     * @return mixed
      */
-    public function update(Announcement $announcement, $title, $body);
+    public function update(Announcement $announcement, string $title, string $body): Announcement;
 
     /**
      * Remove announcement from the system.
-     *
-     * @param Announcement $announcement
-     * @return mixed
      */
-    public function delete(Announcement $announcement);
+    public function delete(Announcement $announcement): bool;
 }

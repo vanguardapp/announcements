@@ -9,19 +9,7 @@ class Created
 {
     use Dispatchable;
 
-    /**
-     * @var Announcement
-     */
-    public $announcement;
-
-    /**
-     * @var bool
-     */
-    public $shouldSendEmailNotification;
-
-    public function __construct(Announcement $announcement, $sendEmailNotification = false)
+    public function __construct(public Announcement $announcement, public $sendEmailNotification = false)
     {
-        $this->announcement = $announcement;
-        $this->shouldSendEmailNotification = $sendEmailNotification;
     }
 }

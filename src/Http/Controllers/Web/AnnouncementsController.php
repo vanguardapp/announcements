@@ -2,6 +2,8 @@
 
 namespace Vanguard\Announcements\Http\Controllers\Web;
 
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Events\EmailNotificationRequested;
 use Vanguard\Announcements\Http\Requests\AnnouncementRequest;
@@ -10,32 +12,18 @@ use Vanguard\Http\Controllers\Controller;
 
 /**
  * Class AnnouncementsController
- * @package Vanguard\Announcements\Http\Controllers\Web
  */
 class AnnouncementsController extends Controller
 {
-    /**
-     * @var AnnouncementsRepository
-     */
-    private $announcements;
-
-    /**
-     * AnnouncementsController constructor.
-     * @param AnnouncementsRepository $announcements
-     */
-    public function __construct(AnnouncementsRepository $announcements)
+    public function __construct(private readonly AnnouncementsRepository $announcements)
     {
-        $this->announcements = $announcements;
-
         $this->middleware('permission:announcements.manage')->except('show');
     }
 
     /**
      * Displays the plugin index page.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         $announcements = $this->announcements->paginate();
         $announcements->load('creator');
@@ -45,21 +33,16 @@ class AnnouncementsController extends Controller
 
     /**
      * Shows the create announcement form.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         return view('announcements::add-edit', ['edit' => false]);
     }
 
     /**
      * Stores the announcement inside the database.
-     *
-     * @param AnnouncementRequest $request
-     * @return mixed
      */
-    public function store(AnnouncementRequest $request)
+    public function store(AnnouncementRequest $request): RedirectResponse
     {
         $announcement = $this->announcements->createFor(
             auth()->user(),
@@ -77,37 +60,27 @@ class AnnouncementsController extends Controller
 
     /**
      * Renders "view announcement" page.
-     *
-     * @param Announcement $announcement
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function show(Announcement $announcement)
+    public function show(Announcement $announcement): View
     {
         return view('announcements::show', compact('announcement'));
     }
 
     /**
      * Renders the form for editing the announcement.
-     *
-     * @param Announcement $announcement
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function edit(Announcement $announcement)
+    public function edit(Announcement $announcement): View
     {
         return view('announcements::add-edit', [
             'edit' => true,
-            'announcement' => $announcement
+            'announcement' => $announcement,
         ]);
     }
 
     /**
      * Updates announcement details.
-     *
-     * @param Announcement $announcement
-     * @param AnnouncementRequest $request
-     * @return mixed
      */
-    public function update(Announcement $announcement, AnnouncementRequest $request)
+    public function update(Announcement $announcement, AnnouncementRequest $request): RedirectResponse
     {
         $this->announcements->update(
             $announcement,
@@ -121,11 +94,8 @@ class AnnouncementsController extends Controller
 
     /**
      * Removes announcement from the system.
-     *
-     * @param Announcement $announcement
-     * @return mixed
      */
-    public function destroy(Announcement $announcement)
+    public function destroy(Announcement $announcement): RedirectResponse
     {
         $this->announcements->delete($announcement);
 

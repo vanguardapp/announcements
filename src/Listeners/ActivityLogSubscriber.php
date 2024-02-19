@@ -2,6 +2,7 @@
 
 namespace Vanguard\Announcements\Listeners;
 
+use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Str;
 use Vanguard\Announcements\Events\Created;
 use Vanguard\Announcements\Events\Deleted;
@@ -10,44 +11,36 @@ use Vanguard\UserActivity\Logger;
 
 class ActivityLogSubscriber
 {
-    /**
-     * @var Logger
-     */
-    private $logger;
-
-    public function __construct(Logger $logger)
+    public function __construct(private Logger $logger)
     {
-        $this->logger = $logger;
     }
 
-    public function onCreate(Created $event)
+    public function onCreate(Created $event): void
     {
         $this->logger->log(__('announcements::log.created_announcement', [
             'id' => $event->announcement->id,
-            'title' => Str::limit($event->announcement->title, 50)
+            'title' => Str::limit($event->announcement->title, 50),
         ]));
     }
 
-    public function onUpdate(Updated $event)
+    public function onUpdate(Updated $event): void
     {
         $this->logger->log(__('announcements::log.created_announcement', [
-            'id' => $event->announcement->id
+            'id' => $event->announcement->id,
         ]));
     }
 
-    public function onDelete(Deleted $event)
+    public function onDelete(Deleted $event): void
     {
         $this->logger->log(__('announcements::log.deleted_announcement', [
-            'id' => $event->announcement->id
+            'id' => $event->announcement->id,
         ]));
     }
 
     /**
      * Register the listeners for the subscriber.
-     *
-     * @param  \Illuminate\Events\Dispatcher  $events
      */
-    public function subscribe($events)
+    public function subscribe(Dispatcher $events): void
     {
         $class = self::class;
 

@@ -2,27 +2,20 @@
 
 namespace Vanguard\Announcements\Http\Controllers\Web;
 
+use Illuminate\Contracts\View\View;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
 use Vanguard\Http\Controllers\Controller;
 
 class AnnouncementListController extends Controller
 {
-    /**
-     * @var AnnouncementsRepository
-     */
-    private $announcements;
-
-    public function __construct(AnnouncementsRepository $announcements)
+    public function __construct(private readonly AnnouncementsRepository $announcements)
     {
-        $this->announcements = $announcements;
     }
 
     /**
      * Displays the plugin index page.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         $announcements = $this->announcements->paginate(7);
         $announcements->load('creator');

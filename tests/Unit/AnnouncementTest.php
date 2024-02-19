@@ -12,7 +12,7 @@ class AnnouncementTest extends TestCase
     {
         $announcement = new Announcement([
             'title' => 'foo',
-            'body' => '# test'
+            'body' => '# test',
         ]);
 
         $this->assertEquals("<h1>test</h1>\n", (string) $announcement->parsed_body);

@@ -12,11 +12,8 @@ class SendEmailNotification
 {
     /**
      * Handle the event.
-     *
-     * @param EmailNotificationRequested $event
-     * @return void
      */
-    public function handle(EmailNotificationRequested $event)
+    public function handle(EmailNotificationRequested $event): void
     {
         User::chunk(200, function ($users) use ($event) {
             foreach ($users as $user) {
@@ -25,7 +22,7 @@ class SendEmailNotification
         });
     }
 
-    private function sendEmailTo(User $user, Announcement $announcement)
+    private function sendEmailTo(User $user, Announcement $announcement): void
     {
         Mail::to($user)->send(new AnnouncementEmail($announcement));
     }

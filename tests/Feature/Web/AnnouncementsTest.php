@@ -4,10 +4,10 @@ namespace Vanguard\Announcements\Tests\Feature\Web;
 
 use Carbon\Carbon;
 use Facades\Tests\Setup\UserFactory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
 use Mail;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Database\Seeders\AnnouncementsDatabaseSeeder;
 use Vanguard\Announcements\Mail\AnnouncementEmail;
@@ -47,7 +47,7 @@ class AnnouncementsTest extends TestCase
 
         Announcement::factory()->create([
             'user_id' => $user->id,
-            'title' => 'Foo Announcement'
+            'title' => 'Foo Announcement',
         ]);
 
         $response = $this->actingAs($user)->get('/announcements')->assertOk();
@@ -146,7 +146,7 @@ class AnnouncementsTest extends TestCase
     {
         $announcement = Announcement::factory()->create();
 
-        $this->get('/announcements/' . $announcement->id)
+        $this->get('/announcements/'.$announcement->id)
             ->assertRedirect('/login');
     }
 
@@ -162,11 +162,11 @@ class AnnouncementsTest extends TestCase
 
         $announcement = Announcement::factory()->create($data);
 
-        $this->actingAs($user)->get('/announcements/' . $announcement->id)
+        $this->actingAs($user)->get('/announcements/'.$announcement->id)
             ->assertOk()
             ->assertSee($data['title']);
 
-        $this->actingAs($admin)->get('/announcements/' . $announcement->id)
+        $this->actingAs($admin)->get('/announcements/'.$announcement->id)
             ->assertOk()
             ->assertSee($data['title']);
     }
@@ -176,8 +176,8 @@ class AnnouncementsTest extends TestCase
     {
         $announcement = Announcement::factory()->create();
 
-        $this->get('/announcements/' . $announcement->id)->assertRedirect('login');
-        $this->put('/announcements/' . $announcement->id, $this->validParams())->assertRedirect('login');
+        $this->get('/announcements/'.$announcement->id)->assertRedirect('login');
+        $this->put('/announcements/'.$announcement->id, $this->validParams())->assertRedirect('login');
 
         $this->assertEquals($announcement->title, $announcement->fresh()->title);
         $this->assertEquals($announcement->body, $announcement->fresh()->body);
@@ -194,7 +194,7 @@ class AnnouncementsTest extends TestCase
 
         $this->actingAs($user)
             ->from("/announcements/{$announcement->id}/edit")
-            ->put('/announcements/' . $announcement->id, $data)
+            ->put('/announcements/'.$announcement->id, $data)
             ->assertRedirect('/announcements')
             ->assertSessionDoesntHaveErrors();
 
@@ -213,7 +213,7 @@ class AnnouncementsTest extends TestCase
 
         $this->actingAs($user)
             ->from("/announcements/{$announcement->id}/edit")
-            ->put('/announcements/' . $announcement->id, $data)
+            ->put('/announcements/'.$announcement->id, $data)
             ->assertRedirect("/announcements/{$announcement->id}/edit")
             ->assertSessionHasErrors('title');
     }
@@ -229,7 +229,7 @@ class AnnouncementsTest extends TestCase
 
         $this->actingAs($user)
             ->from("/announcements/{$announcement->id}/edit")
-            ->put('/announcements/' . $announcement->id, $data)
+            ->put('/announcements/'.$announcement->id, $data)
             ->assertRedirect("/announcements/{$announcement->id}/edit")
             ->assertSessionHasErrors('body');
     }
@@ -239,7 +239,7 @@ class AnnouncementsTest extends TestCase
     {
         $announcement = Announcement::factory()->create();
 
-        $this->delete('/announcements/' . $announcement->id)->assertRedirect('login');
+        $this->delete('/announcements/'.$announcement->id)->assertRedirect('login');
 
         $this->assertNotNull($announcement->fresh());
     }
@@ -251,7 +251,7 @@ class AnnouncementsTest extends TestCase
         $announcement = Announcement::factory()->create();
 
         $this->actingAs($user)
-            ->delete('/announcements/' . $announcement->id)
+            ->delete('/announcements/'.$announcement->id)
             ->assertForbidden();
 
         $this->assertNotNull($announcement->fresh());
@@ -264,7 +264,7 @@ class AnnouncementsTest extends TestCase
         $announcement = Announcement::factory()->create();
 
         $this->actingAs($user)
-            ->delete('/announcements/' . $announcement->id)
+            ->delete('/announcements/'.$announcement->id)
             ->assertRedirect('/announcements');
 
         $this->assertNull($announcement->fresh());
@@ -312,17 +312,16 @@ class AnnouncementsTest extends TestCase
     public function a_red_dot_indicator_is_displayed_if_user_has_unread_announcements()
     {
         Announcement::factory()->create([
-            'created_at' => now()->subMinutes(3)
+            'created_at' => now()->subMinutes(3),
         ]);
 
         $userA = UserFactory::user()->create([
-            'announcements_last_read_at' => now()
+            'announcements_last_read_at' => now(),
         ]);
 
         $userB = UserFactory::user()->create([
-            'announcements_last_read_at' => now()->subMinutes(5)
+            'announcements_last_read_at' => now()->subMinutes(5),
         ]);
-
 
         $this->actingAs($userA)
             ->get('/')
@@ -337,13 +336,13 @@ class AnnouncementsTest extends TestCase
     public function user_announcements_can_be_marked_as_read()
     {
         $user = UserFactory::user()->create([
-            'announcements_last_read_at' => null
+            'announcements_last_read_at' => null,
         ]);
 
         Carbon::setTestNow(now());
 
         $this->actingAs($user)
-            ->post("/announcements/read");
+            ->post('/announcements/read');
 
         $this->assertEquals(
             now()->format('Y-m-d H:i:s'),
@@ -356,7 +355,7 @@ class AnnouncementsTest extends TestCase
         return array_merge([
             'title' => 'Foo Announcement',
             'body' => 'This is the announcement body.',
-            'email_notification' => '0'
+            'email_notification' => '0',
         ], $overrides);
     }
 }

@@ -33,7 +33,7 @@ class AnnouncementsTest extends ApiTestCase
         $announcements = Announcement::factory()->times(11)->create();
 
         $response = $this->actingAs($user, self::API_GUARD)
-            ->getJson("/api/announcements?per_page=10")
+            ->getJson('/api/announcements?per_page=10')
             ->assertOk();
 
         $transformed = AnnouncementResource::collection($announcements->take(10))->resolve();
@@ -45,10 +45,10 @@ class AnnouncementsTest extends ApiTestCase
                 'from' => 1,
                 'to' => 10,
                 'last_page' => 2,
-                'path' => url("api/announcements"),
+                'path' => url('api/announcements'),
                 'total' => 11,
                 'per_page' => 10,
-            ]
+            ],
         ]);
     }
 
@@ -56,14 +56,14 @@ class AnnouncementsTest extends ApiTestCase
     public function paginate_announcements_with_more_records_per_page_than_allowed()
     {
         $this->actingAs($this->validUser(), self::API_GUARD)
-            ->getJson("/api/announcements?per_page=140")
+            ->getJson('/api/announcements?per_page=140')
             ->assertStatus(422);
     }
 
     /** @test */
     public function guests_cannot_create_announcements()
     {
-        $this->postJson("/api/announcements", $this->validParams())
+        $this->postJson('/api/announcements', $this->validParams())
             ->assertUnauthorized();
 
         $this->assertEquals(0, Announcement::count());
@@ -75,7 +75,7 @@ class AnnouncementsTest extends ApiTestCase
         $user = UserFactory::user()->create();
 
         $this->actingAs($user, self::API_GUARD)
-            ->postJson("/api/announcements", $this->validParams())
+            ->postJson('/api/announcements', $this->validParams())
             ->assertForbidden();
 
         $this->assertEquals(0, Announcement::count());
@@ -88,13 +88,13 @@ class AnnouncementsTest extends ApiTestCase
         $data = $this->validParams();
 
         $response = $this->actingAs($user, self::API_GUARD)
-            ->postJson("/api/announcements", $data)
+            ->postJson('/api/announcements', $data)
             ->assertStatus(201);
 
         $announcement = Announcement::first();
 
         $response->assertExactJson([
-            'data' => (new AnnouncementResource($announcement))->resolve()
+            'data' => (new AnnouncementResource($announcement))->resolve(),
         ]);
 
         $this->assertEquals($user->id, $announcement->user_id);
@@ -126,7 +126,7 @@ class AnnouncementsTest extends ApiTestCase
         $data = $this->validParams(['title' => '']);
 
         $this->actingAs($this->validUser(), self::API_GUARD)
-            ->postJson("/api/announcements", $data)
+            ->postJson('/api/announcements', $data)
             ->assertStatus(422)
             ->assertJsonValidationErrors('title');
 
@@ -139,7 +139,7 @@ class AnnouncementsTest extends ApiTestCase
         $data = $this->validParams(['body' => '']);
 
         $this->actingAs($this->validUser(), self::API_GUARD)
-            ->postJson("/api/announcements", $data)
+            ->postJson('/api/announcements', $data)
             ->assertStatus(422)
             ->assertJsonValidationErrors('body');
 
@@ -165,7 +165,7 @@ class AnnouncementsTest extends ApiTestCase
             ->getJson("/api/announcements/{$announcement->id}")
             ->assertOk()
             ->assertExactJson([
-                'data' => (new AnnouncementResource($announcement))->resolve()
+                'data' => (new AnnouncementResource($announcement))->resolve(),
             ]);
     }
 
@@ -199,7 +199,7 @@ class AnnouncementsTest extends ApiTestCase
             ->putJson("/api/announcements/{$announcement->id}", $this->validParams())
             ->assertOk()
             ->assertExactJson([
-                'data' => (new AnnouncementResource($announcement->fresh()))->resolve()
+                'data' => (new AnnouncementResource($announcement->fresh()))->resolve(),
             ]);
     }
 
@@ -263,13 +263,13 @@ class AnnouncementsTest extends ApiTestCase
     public function user_announcements_can_be_marked_as_read()
     {
         $user = UserFactory::user()->create([
-            'announcements_last_read_at' => null
+            'announcements_last_read_at' => null,
         ]);
 
         Carbon::setTestNow(now());
 
         $this->actingAs($user, self::API_GUARD)
-            ->post("/api/announcements/read");
+            ->post('/api/announcements/read');
 
         $this->assertEquals(
             now()->format('Y-m-d H:i:s'),
@@ -286,7 +286,6 @@ class AnnouncementsTest extends ApiTestCase
     }
 
     /**
-     * @param array $overrides
      * @return array
      */
     private function validParams(array $overrides = [])
@@ -294,7 +293,7 @@ class AnnouncementsTest extends ApiTestCase
         return array_merge([
             'title' => 'Foo Announcement',
             'body' => 'This is the announcement body.',
-            'email_notification' => false
+            'email_notification' => false,
         ], $overrides);
     }
 }

@@ -2,16 +2,15 @@
 
 namespace Vanguard\Announcements\Hooks;
 
+use Illuminate\Contracts\View\View;
 use Vanguard\Plugins\Contracts\Hook;
 
 class ScriptsHook implements Hook
 {
     /**
      * Execute the hook action.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function handle()
+    public function handle(): View
     {
         return view('announcements::partials.scripts');
     }
