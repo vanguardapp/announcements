@@ -16,11 +16,14 @@
 
     @include('partials.messages')
 
-    @if ($edit)
-        {!! Form::open(['route' => ['announcements.update', $announcement], 'id' => 'announcement-form', 'method' => 'PUT']) !!}
-    @else
-        {!! Form::open(['route' => 'announcements.store', 'id' => 'announcement-form']) !!}
-    @endif
+    <form action="{{ $edit ? route('announcements.update', $announcement) : route('announcements.store') }}"
+          id="announcement-form"
+          method="POST">
+        @csrf
+        @if ($edit)
+            @method('PUT')
+        @endif
+
         <div class="row">
             <div class="col-md-6 my-4 mx-auto">
                 <div class="card">
@@ -77,7 +80,7 @@
                 </div>
             </div>
         </div>
-    {!! Form::close() !!}
+    </form>
 @stop
 
 @section('scripts')
