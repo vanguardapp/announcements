@@ -6,7 +6,7 @@ use Mail;
 use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Events\EmailNotificationRequested;
 use Vanguard\Announcements\Mail\AnnouncementEmail;
-use Vanguard\User;
+use \App\Models\User;
 
 class SendEmailNotification
 {

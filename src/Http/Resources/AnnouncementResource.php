@@ -3,7 +3,7 @@
 namespace Vanguard\Announcements\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Vanguard\Http\Resources\UserResource;
+use App\Http\Resources\UserResource;
 
 class AnnouncementResource extends JsonResource
 {

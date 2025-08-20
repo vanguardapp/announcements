@@ -14,7 +14,7 @@ use Vanguard\Announcements\Repositories\AnnouncementsRepository;
 use Vanguard\Announcements\Repositories\EloquentAnnouncements;
 use Vanguard\Plugins\Plugin;
 use Vanguard\Plugins\Vanguard;
-use Vanguard\Support\Sidebar\Item;
+use App\Support\Sidebar\Item;
 
 class Announcements extends Plugin
 {

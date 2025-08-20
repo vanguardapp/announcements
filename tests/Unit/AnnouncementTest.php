@@ -7,8 +7,8 @@ use Vanguard\Announcements\Announcement;
 
 class AnnouncementTest extends TestCase
 {
-    /** @test */
-    public function testParsedBody()
+    
+    public function test_testParsedBody()
     {
         $announcement = new Announcement([
             'title' => 'foo',

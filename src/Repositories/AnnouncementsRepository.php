@@ -5,7 +5,7 @@ namespace Vanguard\Announcements\Repositories;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Vanguard\Announcements\Announcement;
-use Vanguard\User;
+use \App\Models\User;
 
 interface AnnouncementsRepository
 {
@@ -22,12 +22,12 @@ interface AnnouncementsRepository
     public function paginate(int $perPage = 10): LengthAwarePaginator;
 
     /**
-     * Create an announcement for user.
+     * Create an announcement for the user.
      */
     public function createFor(User $user, string $title, string $body): Announcement;
 
     /**
-     * Find announcement by ID.
+     * Find an announcement by ID.
      */
     public function find(int $id): ?Announcement;
 
@@ -37,7 +37,7 @@ interface AnnouncementsRepository
     public function update(Announcement $announcement, string $title, string $body): Announcement;
 
     /**
-     * Remove announcement from the system.
+     * Remove the announcement from the system.
      */
     public function delete(Announcement $announcement): bool;
 }

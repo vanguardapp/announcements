@@ -4,7 +4,7 @@ namespace Vanguard\Announcements\Http\Controllers\Web;
 
 use Illuminate\Contracts\View\View;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
-use Vanguard\Http\Controllers\Controller;
+use App\Http\Controllers\Controller;
 
 class AnnouncementListController extends Controller
 {

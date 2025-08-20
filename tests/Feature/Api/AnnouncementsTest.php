@@ -20,14 +20,14 @@ class AnnouncementsTest extends ApiTestCase
         $this->artisan('db:seed', ['--class' => AnnouncementsDatabaseSeeder::class]);
     }
 
-    /** @test */
-    public function guests_cannot_paginate_announcements()
+    
+    public function test_guests_cannot_paginate_announcements()
     {
         $this->getJson('/api/announcements')->assertStatus(401);
     }
 
-    /** @test */
-    public function any_authenticated_users_can_paginate_announcements()
+    
+    public function test_any_authenticated_users_can_paginate_announcements()
     {
         $user = UserFactory::user()->create();
         $announcements = Announcement::factory()->times(11)->create();
@@ -52,16 +52,16 @@ class AnnouncementsTest extends ApiTestCase
         ]);
     }
 
-    /** @test */
-    public function paginate_announcements_with_more_records_per_page_than_allowed()
+    
+    public function test_paginate_announcements_with_more_records_per_page_than_allowed()
     {
         $this->actingAs($this->validUser(), self::API_GUARD)
             ->getJson('/api/announcements?per_page=140')
             ->assertStatus(422);
     }
 
-    /** @test */
-    public function guests_cannot_create_announcements()
+    
+    public function test_guests_cannot_create_announcements()
     {
         $this->postJson('/api/announcements', $this->validParams())
             ->assertUnauthorized();
@@ -69,8 +69,8 @@ class AnnouncementsTest extends ApiTestCase
         $this->assertEquals(0, Announcement::count());
     }
 
-    /** @test */
-    public function users_without_appropriate_permission_cannot_create_announcements()
+    
+    public function test_users_without_appropriate_permission_cannot_create_announcements()
     {
         $user = UserFactory::user()->create();
 
@@ -81,8 +81,8 @@ class AnnouncementsTest extends ApiTestCase
         $this->assertEquals(0, Announcement::count());
     }
 
-    /** @test */
-    public function users_with_appropriate_permission_can_create_announcements()
+    
+    public function test_users_with_appropriate_permission_can_create_announcements()
     {
         $user = $this->validUser();
         $data = $this->validParams();
@@ -102,8 +102,8 @@ class AnnouncementsTest extends ApiTestCase
         $this->assertEquals($data['body'], $announcement->body);
     }
 
-    /** @test */
-    public function an_email_notification_can_be_triggered_when_an_announcement_is_created()
+    
+    public function test_an_email_notification_can_be_triggered_when_an_announcement_is_created()
     {
         Mail::fake();
 
@@ -120,8 +120,8 @@ class AnnouncementsTest extends ApiTestCase
         });
     }
 
-    /** @test */
-    public function title_field_is_required_when_creating_an_announcement()
+    
+    public function test_title_field_is_required_when_creating_an_announcement()
     {
         $data = $this->validParams(['title' => '']);
 
@@ -133,8 +133,8 @@ class AnnouncementsTest extends ApiTestCase
         $this->assertEquals(0, Announcement::count());
     }
 
-    /** @test */
-    public function body_field_is_required_when_creating_an_announcement()
+    
+    public function test_body_field_is_required_when_creating_an_announcement()
     {
         $data = $this->validParams(['body' => '']);
 
@@ -146,8 +146,8 @@ class AnnouncementsTest extends ApiTestCase
         $this->assertEquals(0, Announcement::count());
     }
 
-    /** @test */
-    public function guests_cannot_view_an_announcement()
+    
+    public function test_guests_cannot_view_an_announcement()
     {
         $announcement = Announcement::factory()->create();
 
@@ -155,8 +155,8 @@ class AnnouncementsTest extends ApiTestCase
             ->assertUnauthorized();
     }
 
-    /** @test */
-    public function authenticated_users_can_view_any_announcement()
+    
+    public function test_authenticated_users_can_view_any_announcement()
     {
         $user = UserFactory::user()->create();
         $announcement = Announcement::factory()->create();
@@ -169,8 +169,8 @@ class AnnouncementsTest extends ApiTestCase
             ]);
     }
 
-    /** @test */
-    public function guests_cannot_update_an_announcement()
+    
+    public function test_guests_cannot_update_an_announcement()
     {
         $announcement = Announcement::factory()->create();
 
@@ -178,8 +178,8 @@ class AnnouncementsTest extends ApiTestCase
             ->assertUnauthorized();
     }
 
-    /** @test */
-    public function users_without_approprite_permission_cannot_update_an_announcement()
+    
+    public function test_users_without_approprite_permission_cannot_update_an_announcement()
     {
         $user = UserFactory::user()->create();
         $announcement = Announcement::factory()->create();
@@ -189,8 +189,8 @@ class AnnouncementsTest extends ApiTestCase
             ->assertForbidden();
     }
 
-    /** @test */
-    public function users_with_approprite_permission_can_update_an_announcement()
+    
+    public function test_users_with_approprite_permission_can_update_an_announcement()
     {
         $user = $this->validUser();
         $announcement = Announcement::factory()->create();
@@ -203,8 +203,8 @@ class AnnouncementsTest extends ApiTestCase
             ]);
     }
 
-    /** @test */
-    public function title_field_is_required_when_updating_an_announcement()
+    
+    public function test_title_field_is_required_when_updating_an_announcement()
     {
         $data = $this->validParams(['title' => '']);
         $announcement = Announcement::factory()->create();
@@ -215,8 +215,8 @@ class AnnouncementsTest extends ApiTestCase
             ->assertJsonValidationErrors('title');
     }
 
-    /** @test */
-    public function body_field_is_required_when_updating_an_announcement()
+    
+    public function test_body_field_is_required_when_updating_an_announcement()
     {
         $data = $this->validParams(['body' => '']);
         $announcement = Announcement::factory()->create();
@@ -227,8 +227,8 @@ class AnnouncementsTest extends ApiTestCase
             ->assertJsonValidationErrors('body');
     }
 
-    /** @test */
-    public function guests_cannot_delete_an_announcement()
+    
+    public function test_guests_cannot_delete_an_announcement()
     {
         $announcement = Announcement::factory()->create();
 
@@ -236,8 +236,8 @@ class AnnouncementsTest extends ApiTestCase
             ->assertUnauthorized();
     }
 
-    /** @test */
-    public function users_without_appropriate_permission_cannot_delete_an_announcement()
+    
+    public function test_users_without_appropriate_permission_cannot_delete_an_announcement()
     {
         $user = UserFactory::user()->create();
         $announcement = Announcement::factory()->create();
@@ -247,8 +247,8 @@ class AnnouncementsTest extends ApiTestCase
             ->assertForbidden();
     }
 
-    /** @test */
-    public function users_with_appropriate_permission_can_delete_an_announcement()
+    
+    public function test_users_with_appropriate_permission_can_delete_an_announcement()
     {
         $announcement = Announcement::factory()->create();
 
@@ -259,8 +259,8 @@ class AnnouncementsTest extends ApiTestCase
         $this->assertNull($announcement->fresh());
     }
 
-    /** @test */
-    public function user_announcements_can_be_marked_as_read()
+    
+    public function test_user_announcements_can_be_marked_as_read()
     {
         $user = UserFactory::user()->create([
             'announcements_last_read_at' => null,

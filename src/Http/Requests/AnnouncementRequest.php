@@ -2,7 +2,7 @@
 
 namespace Vanguard\Announcements\Http\Requests;
 
-use Vanguard\Http\Requests\Request;
+use App\Http\Requests\Request;
 
 class AnnouncementRequest extends Request
 {

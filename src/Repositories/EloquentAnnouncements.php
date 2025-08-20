@@ -8,7 +8,7 @@ use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Events\Created;
 use Vanguard\Announcements\Events\Deleted;
 use Vanguard\Announcements\Events\Updated;
-use Vanguard\User;
+use \App\Models\User;
 
 class EloquentAnnouncements implements AnnouncementsRepository
 {
@@ -31,7 +31,7 @@ class EloquentAnnouncements implements AnnouncementsRepository
     }
 
     /**
-     * Create an announcement for user.
+     * Create an announcement for the user.
      */
     public function createFor(User $user, string $title, string $body): Announcement
     {
@@ -47,7 +47,7 @@ class EloquentAnnouncements implements AnnouncementsRepository
     }
 
     /**
-     * Find announcement by ID.
+     * Find an announcement by ID.
      */
     public function find($id): ?Announcement
     {
@@ -70,7 +70,7 @@ class EloquentAnnouncements implements AnnouncementsRepository
     }
 
     /**
-     * Remove announcement from the system.
+     * Remove the announcement from the system.
      *
      * @throws \Exception
      */

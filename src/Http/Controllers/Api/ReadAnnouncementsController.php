@@ -2,7 +2,7 @@
 
 namespace Vanguard\Announcements\Http\Controllers\Api;
 
-use Vanguard\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\ApiController;
 
 class ReadAnnouncementsController extends ApiController
 {

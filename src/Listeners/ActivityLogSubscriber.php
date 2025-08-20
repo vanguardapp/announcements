@@ -25,7 +25,7 @@ class ActivityLogSubscriber
 
     public function onUpdate(Updated $event): void
     {
-        $this->logger->log(__('announcements::log.created_announcement', [
+        $this->logger->log(__('announcements::log.updated_announcement', [
             'id' => $event->announcement->id,
         ]));
     }

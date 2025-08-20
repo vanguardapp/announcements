@@ -23,7 +23,7 @@ class AnnouncementFactory extends Factory
             'title' => $this->faker->title,
             'body' => $this->faker->paragraph(2),
             'user_id' => function () {
-                return \Vanguard\User::factory()->create()->id;
+                return \App\Models\User::factory()->create()->id;
             },
         ];
     }

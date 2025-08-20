@@ -10,7 +10,7 @@ use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\Table\TableExtension;
 use Vanguard\Announcements\Database\Factories\AnnouncementFactory;
-use Vanguard\User;
+use \App\Models\User;
 
 /**
  * @property int $id

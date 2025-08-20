@@ -26,22 +26,22 @@ class AnnouncementsTest extends TestCase
         $this->artisan('db:seed', ['--class' => AnnouncementsDatabaseSeeder::class]);
     }
 
-    /** @test */
-    public function guests_cannot_view_announcement_index_page()
+    
+    public function test_guests_cannot_view_announcement_index_page()
     {
         $this->get('/announcements')->assertRedirect('login');
     }
 
-    /** @test */
-    public function users_without_appropriate_permission_cannot_view_announcement_list()
+    
+    public function test_users_without_appropriate_permission_cannot_view_announcement_list()
     {
         $user = UserFactory::user()->create();
 
         $this->actingAs($user)->get('/announcements')->assertForbidden();
     }
 
-    /** @test */
-    public function users_with_appropriate_permission_can_view_the_announcement_list()
+    
+    public function test_users_with_appropriate_permission_can_view_the_announcement_list()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
@@ -54,16 +54,16 @@ class AnnouncementsTest extends TestCase
         $response->assertSee('Foo Announcement');
     }
 
-    /** @test */
-    public function guests_cannot_create_announcements()
+    
+    public function test_guests_cannot_create_announcements()
     {
         $this->post('/announcements', $this->validParams())->assertRedirect('login');
 
         $this->assertEquals(0, Announcement::count());
     }
 
-    /** @test */
-    public function users_without_appropriate_permission_cannot_create_announcements()
+    
+    public function test_users_without_appropriate_permission_cannot_create_announcements()
     {
         $user = UserFactory::user()->create();
 
@@ -72,8 +72,8 @@ class AnnouncementsTest extends TestCase
         $this->assertEquals(0, Announcement::count());
     }
 
-    /** @test */
-    public function users_with_appropriate_permission_can_create_announcements()
+    
+    public function test_users_with_appropriate_permission_can_create_announcements()
     {
         Mail::fake();
 
@@ -92,8 +92,8 @@ class AnnouncementsTest extends TestCase
         Mail::assertNothingSent();
     }
 
-    /** @test */
-    public function title_field_is_required_when_creating_an_announcement()
+    
+    public function test_title_field_is_required_when_creating_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
@@ -106,8 +106,8 @@ class AnnouncementsTest extends TestCase
             ->assertSessionHasErrors('title');
     }
 
-    /** @test */
-    public function body_field_is_required_when_creating_an_announcement()
+    
+    public function test_body_field_is_required_when_creating_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
@@ -120,8 +120,8 @@ class AnnouncementsTest extends TestCase
             ->assertSessionHasErrors('body');
     }
 
-    /** @test */
-    public function an_email_notification_can_be_triggered_when_an_announcement_is_created()
+    
+    public function test_an_email_notification_can_be_triggered_when_an_announcement_is_created()
     {
         Mail::fake();
 
@@ -141,8 +141,8 @@ class AnnouncementsTest extends TestCase
         });
     }
 
-    /** @test */
-    public function guests_cannot_view_an_announcement()
+    
+    public function test_guests_cannot_view_an_announcement()
     {
         $announcement = Announcement::factory()->create();
 
@@ -150,8 +150,8 @@ class AnnouncementsTest extends TestCase
             ->assertRedirect('/login');
     }
 
-    /** @test */
-    public function authenticated_users_can_see_an_announcement()
+    
+    public function test_authenticated_users_can_see_an_announcement()
     {
         $this->withoutExceptionHandling();
 
@@ -171,8 +171,8 @@ class AnnouncementsTest extends TestCase
             ->assertSee($data['title']);
     }
 
-    /** @test */
-    public function guests_cannot_edit_announcements()
+    
+    public function test_guests_cannot_edit_announcements()
     {
         $announcement = Announcement::factory()->create();
 
@@ -183,8 +183,8 @@ class AnnouncementsTest extends TestCase
         $this->assertEquals($announcement->body, $announcement->fresh()->body);
     }
 
-    /** @test */
-    public function users_with_appropriate_permissions_can_edit_an_announcement()
+    
+    public function test_users_with_appropriate_permissions_can_edit_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
@@ -202,8 +202,8 @@ class AnnouncementsTest extends TestCase
         $this->assertEquals($data['body'], $announcement->fresh()->body);
     }
 
-    /** @test */
-    public function title_field_is_required_when_updating_an_announcement()
+    
+    public function test_title_field_is_required_when_updating_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
@@ -218,8 +218,8 @@ class AnnouncementsTest extends TestCase
             ->assertSessionHasErrors('title');
     }
 
-    /** @test */
-    public function body_field_is_required_when_updating_an_announcement()
+    
+    public function test_body_field_is_required_when_updating_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
 
@@ -234,8 +234,8 @@ class AnnouncementsTest extends TestCase
             ->assertSessionHasErrors('body');
     }
 
-    /** @test */
-    public function guests_cannot_delete_an_announcement()
+    
+    public function test_guests_cannot_delete_an_announcement()
     {
         $announcement = Announcement::factory()->create();
 
@@ -244,8 +244,8 @@ class AnnouncementsTest extends TestCase
         $this->assertNotNull($announcement->fresh());
     }
 
-    /** @test */
-    public function users_without_appropriate_permission_cannot_delete_an_announcement()
+    
+    public function test_users_without_appropriate_permission_cannot_delete_an_announcement()
     {
         $user = UserFactory::user()->create();
         $announcement = Announcement::factory()->create();
@@ -257,8 +257,8 @@ class AnnouncementsTest extends TestCase
         $this->assertNotNull($announcement->fresh());
     }
 
-    /** @test */
-    public function users_with_appropriate_permission_can_delete_an_announcement()
+    
+    public function test_users_with_appropriate_permission_can_delete_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
         $announcement = Announcement::factory()->create();
@@ -270,14 +270,14 @@ class AnnouncementsTest extends TestCase
         $this->assertNull($announcement->fresh());
     }
 
-    /** @test */
-    public function guests_cannot_view_announcement_list()
+    
+    public function test_guests_cannot_view_announcement_list()
     {
         $this->get('/announcements/list')->assertRedirect('login');
     }
 
-    /** @test */
-    public function any_authenticated_user_can_view_announcement_list()
+    
+    public function test_any_authenticated_user_can_view_announcement_list()
     {
         $user = UserFactory::user()->create();
 
@@ -292,8 +292,8 @@ class AnnouncementsTest extends TestCase
             ->assertSee($announcementB->parsed_body);
     }
 
-    /** @test */
-    public function authenticated_users_can_see_the_announcements_header_section()
+    
+    public function test_authenticated_users_can_see_the_announcements_header_section()
     {
         $user = UserFactory::user()->create();
 
@@ -308,8 +308,8 @@ class AnnouncementsTest extends TestCase
             ->assertSee($data['title']);
     }
 
-    /** @test */
-    public function a_red_dot_indicator_is_displayed_if_user_has_unread_announcements()
+    
+    public function test_a_red_dot_indicator_is_displayed_if_user_has_unread_announcements()
     {
         Announcement::factory()->create([
             'created_at' => now()->subMinutes(3),
@@ -332,8 +332,8 @@ class AnnouncementsTest extends TestCase
             ->assertSee('activity-badge');
     }
 
-    /** @test */
-    public function user_announcements_can_be_marked_as_read()
+    
+    public function test_user_announcements_can_be_marked_as_read()
     {
         $user = UserFactory::user()->create([
             'announcements_last_read_at' => null,
