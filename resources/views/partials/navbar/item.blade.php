@@ -1,6 +1,6 @@
 <div class="d-flex align-items-start px-4 p-4 navbar-item">
     <img src="{{ $announcement->creator->present()->avatar }}" width="50" height="50"
-         class="rounded-circle img-responsive mr-3">
+         class="rounded-circle img-responsive me-3">
 
     <div class="w-100">
         <div class="d-flex justify-content-between align-items-start">

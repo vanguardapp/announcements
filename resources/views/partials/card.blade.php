@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-lighter">
             <div class="d-flex align-items-center ">
                 <img
-                    class="rounded-circle img-responsive mr-2"
+                    class="rounded-circle img-responsive me-2"
                     width="40"
                     src="{{ $announcement->creator->present()->avatar }}"
                     alt="{{ $announcement->creator->present()->name }}">

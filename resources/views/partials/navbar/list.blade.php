@@ -3,7 +3,7 @@
        class="text-gray-500 position-relative nav-icon"
        id="announcementsDropdown"
        role="button"
-       data-toggle="dropdown"
+       data-bs-toggle="dropdown"
        aria-haspopup="true"
        aria-expanded="false">
         @if (count($announcements) > 0 && $announcements->first()->wasReadBy(auth()->user()))
@@ -11,10 +11,10 @@
         @endif
         <i class="fas fa-bullhorn"></i>
     </a>
-    <div class="dropdown-menu dropdown-menu-right position-absolute p-0 shadow-lg"
+    <div class="dropdown-menu dropdown-menu-end position-absolute p-0 shadow-lg"
          aria-labelledby="announcementsDropdown"
          style="width: 380px; height: 350px; overflow-y: scroll; overflow-x: hidden;">
-        <div class="text-center p-4">
+        <div class="text-center p-4 bg-white">
             <h5 class="text-muted mt-2">
                 @lang('Announcements')
             </h5>

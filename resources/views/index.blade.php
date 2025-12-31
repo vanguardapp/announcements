@@ -15,7 +15,7 @@
 
     <div class="d-flex mb-4">
         <a href="{{ route('announcements.create') }}" class="btn btn-primary btn-rounded ml-auto">
-            <i class="fas fa-plus mr-2"></i>
+            <i class="fas fa-plus me-2"></i>
             @lang('Create Announcement')
         </a>
     </div>
