@@ -42,7 +42,7 @@ run the following commands to make all the necessary database modifications:
 
 ```
 php artisan migrate
-php artisan db:seed --class="AnnouncementsDatabaseSeeder"
+php artisan db:seed --class="Vanguard\Announcements\Database\Seeders\AnnouncementsDatabaseSeeder"
 ```
 
 At this point the plugin will be fully installed and ready to go.
