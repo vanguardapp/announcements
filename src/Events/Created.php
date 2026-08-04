@@ -9,7 +9,5 @@ class Created
 {
     use Dispatchable;
 
-    public function __construct(public Announcement $announcement, public $sendEmailNotification = false)
-    {
-    }
+    public function __construct(public Announcement $announcement, public $sendEmailNotification = false) {}
 }

@@ -2,9 +2,11 @@
 
 namespace Vanguard\Announcements\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\ApiController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -13,7 +15,6 @@ use Vanguard\Announcements\Events\EmailNotificationRequested;
 use Vanguard\Announcements\Http\Requests\AnnouncementRequest;
 use Vanguard\Announcements\Http\Resources\AnnouncementResource;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
-use App\Http\Controllers\Api\ApiController;
 
 /**
  * Class AnnouncementsController
@@ -28,7 +29,7 @@ class AnnouncementsController extends ApiController
     /**
      * Returns a paginated list of announcements.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function index(Request $request): AnonymousResourceCollection
     {

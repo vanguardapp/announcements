@@ -2,13 +2,13 @@
 
 namespace Vanguard\Announcements\Http\Controllers\Web;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Events\EmailNotificationRequested;
 use Vanguard\Announcements\Http\Requests\AnnouncementRequest;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
-use App\Http\Controllers\Controller;
 
 /**
  * Class AnnouncementsController

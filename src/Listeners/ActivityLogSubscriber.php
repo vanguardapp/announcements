@@ -11,9 +11,7 @@ use Vanguard\UserActivity\Logger;
 
 class ActivityLogSubscriber
 {
-    public function __construct(private Logger $logger)
-    {
-    }
+    public function __construct(private Logger $logger) {}
 
     public function onCreate(Created $event): void
     {

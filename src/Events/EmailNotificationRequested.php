@@ -9,7 +9,5 @@ class EmailNotificationRequested
 {
     use Dispatchable;
 
-    public function __construct(public Announcement $announcement)
-    {
-    }
+    public function __construct(public Announcement $announcement) {}
 }

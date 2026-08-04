@@ -2,13 +2,13 @@
 
 namespace Vanguard\Announcements\Repositories;
 
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Events\Created;
 use Vanguard\Announcements\Events\Deleted;
 use Vanguard\Announcements\Events\Updated;
-use \App\Models\User;
 
 class EloquentAnnouncements implements AnnouncementsRepository
 {

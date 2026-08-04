@@ -2,19 +2,18 @@
 
 namespace Vanguard\Announcements;
 
+use App\Support\Sidebar\Item;
 use Event;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Route;
 use Vanguard\Announcements\Events\EmailNotificationRequested;
-use Vanguard\Announcements\Hooks\NavbarItemsHook;
-use Vanguard\Announcements\Hooks\ScriptsHook;
-use Vanguard\Announcements\Hooks\StylesHook;
 use Vanguard\Announcements\Listeners\ActivityLogSubscriber;
 use Vanguard\Announcements\Listeners\SendEmailNotification;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
 use Vanguard\Announcements\Repositories\EloquentAnnouncements;
+use Vanguard\Announcements\Slots\NavbarItemsSlot;
 use Vanguard\Plugins\Plugin;
 use Vanguard\Plugins\Vanguard;
-use App\Support\Sidebar\Item;
 
 class Announcements extends Plugin
 {
@@ -41,14 +40,13 @@ class Announcements extends Plugin
     /**
      * Bootstrap services.
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function boot(): void
     {
         $this->registerViews();
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'announcements');
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'announcements');
         $this->loadJsonTranslationsFrom(__DIR__.'/../resources/lang');
 
@@ -58,7 +56,7 @@ class Announcements extends Plugin
 
         $this->mapRoutes();
 
-        $this->registerHooks();
+        $this->registerSlots();
 
         $this->registerEventListeners();
 
@@ -66,17 +64,23 @@ class Announcements extends Plugin
     }
 
     /**
+     * The compiled plugin bundle published to public/vendor/plugins/announcements.
+     *
+     * {@inheritdoc}
+     */
+    public function assets(): array
+    {
+        return $this->viteAssets('announcements');
+    }
+
+    /**
      * Register plugin views.
+     *
+     * Only the mail template is still Blade; the UI lives in the plugin bundle.
      */
     protected function registerViews(): void
     {
-        $viewsPath = __DIR__.'/../resources/views';
-
-        $this->publishes([
-            $viewsPath => resource_path('views/vendor/plugins/announcements'),
-        ], 'views');
-
-        $this->loadViewsFrom($viewsPath, 'announcements');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'announcements');
     }
 
     /**
@@ -133,13 +137,11 @@ class Announcements extends Plugin
     }
 
     /**
-     * Register all necessary view hooks for the plugin.
+     * Register the UI slots this plugin contributes to the host layout.
      */
-    private function registerHooks(): void
+    private function registerSlots(): void
     {
-        Vanguard::hook('navbar:items', NavbarItemsHook::class);
-        Vanguard::hook('app:styles', StylesHook::class);
-        Vanguard::hook('app:scripts', ScriptsHook::class);
+        Vanguard::slot('navbar:items', NavbarItemsSlot::class);
     }
 
     /**

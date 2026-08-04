@@ -3,6 +3,7 @@
 namespace Vanguard\Announcements\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\ApiController;
+use Illuminate\Http\JsonResponse;
 
 class ReadAnnouncementsController extends ApiController
 {
@@ -10,7 +11,7 @@ class ReadAnnouncementsController extends ApiController
      * Update the timestamp when announcements were last read
      * by the currently authenticated user.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function index()
     {

@@ -2,10 +2,10 @@
 
 namespace Vanguard\Announcements\Repositories;
 
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Vanguard\Announcements\Announcement;
-use \App\Models\User;
 
 interface AnnouncementsRepository
 {

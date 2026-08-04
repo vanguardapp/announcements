@@ -2,11 +2,11 @@
 
 namespace Vanguard\Announcements\Listeners;
 
+use App\Models\User;
 use Mail;
 use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Events\EmailNotificationRequested;
 use Vanguard\Announcements\Mail\AnnouncementEmail;
-use \App\Models\User;
 
 class SendEmailNotification
 {

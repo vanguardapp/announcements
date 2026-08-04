@@ -15,9 +15,7 @@ class AnnouncementEmail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      */
-    public function __construct(public Announcement $announcement)
-    {
-    }
+    public function __construct(public Announcement $announcement) {}
 
     /**
      * Build the message.

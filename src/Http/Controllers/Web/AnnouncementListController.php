@@ -2,15 +2,13 @@
 
 namespace Vanguard\Announcements\Http\Controllers\Web;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
-use App\Http\Controllers\Controller;
 
 class AnnouncementListController extends Controller
 {
-    public function __construct(private readonly AnnouncementsRepository $announcements)
-    {
-    }
+    public function __construct(private readonly AnnouncementsRepository $announcements) {}
 
     /**
      * Displays the plugin index page.

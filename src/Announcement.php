@@ -2,15 +2,16 @@
 
 namespace Vanguard\Announcements;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\HtmlString;
 use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\Table\TableExtension;
 use Vanguard\Announcements\Database\Factories\AnnouncementFactory;
-use \App\Models\User;
 
 /**
  * @property int $id
@@ -27,7 +28,7 @@ class Announcement extends Model
 
     protected $guarded = [];
 
-    public function creator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
