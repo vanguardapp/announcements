@@ -1,16 +1,19 @@
 {
     "private": true,
+    "type": "module",
     "scripts": {
-        "dev": "npm run development",
-        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch-poll": "npm run watch -- --watch-poll",
-        "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+        "build": "vite build",
+        "type-check": "vue-tsc --noEmit"
     },
     "devDependencies": {
-        "cross-env": "^5.1.4",
-        "laravel-mix": "^2.0"
+        "@inertiajs/vue3": "^3.6.1",
+        "@tailwindcss/vite": "^4.3.3",
+        "@types/node": "^26.1.2",
+        "@vitejs/plugin-vue": "^6.0.8",
+        "tailwindcss": "^4.3.3",
+        "typescript": "^5.9.3",
+        "vite": "^8.2.0",
+        "vue": "^3.5.40",
+        "vue-tsc": "^3.3.9"
     }
 }

@@ -1,0 +1,8 @@
+{
+  "resources/js/plugin.ts": {
+    "file": "js/plugin-Bkr_ayST.js",
+    "name": "plugin",
+    "src": "resources/js/plugin.ts",
+    "isEntry": true
+  }
+}

@@ -3,8 +3,10 @@
 namespace Vanguard\Announcements\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use Vanguard\Announcements\Repositories\AnnouncementsRepository;
+use Vanguard\Announcements\Support\AnnouncementPayload;
 
 class AnnouncementListController extends Controller
 {
@@ -13,11 +15,13 @@ class AnnouncementListController extends Controller
     /**
      * Displays the plugin index page.
      */
-    public function index(): View
+    public function index(): InertiaResponse
     {
         $announcements = $this->announcements->paginate(7);
         $announcements->load('creator');
 
-        return view('announcements::list', compact('announcements'));
+        return Inertia::render('announcements::List', [
+            'announcements' => AnnouncementPayload::cards($announcements),
+        ]);
     }
 }

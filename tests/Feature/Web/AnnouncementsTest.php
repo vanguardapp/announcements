@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Facades\Tests\Setup\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
+use Illuminate\Testing\TestResponse;
 use Mail;
 use Tests\TestCase;
 use Vanguard\Announcements\Announcement;
@@ -26,13 +27,11 @@ class AnnouncementsTest extends TestCase
         $this->artisan('db:seed', ['--class' => AnnouncementsDatabaseSeeder::class]);
     }
 
-    
     public function test_guests_cannot_view_announcement_index_page()
     {
         $this->get('/announcements')->assertRedirect('login');
     }
 
-    
     public function test_users_without_appropriate_permission_cannot_view_announcement_list()
     {
         $user = UserFactory::user()->create();
@@ -40,7 +39,6 @@ class AnnouncementsTest extends TestCase
         $this->actingAs($user)->get('/announcements')->assertForbidden();
     }
 
-    
     public function test_users_with_appropriate_permission_can_view_the_announcement_list()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
@@ -51,10 +49,13 @@ class AnnouncementsTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get('/announcements')->assertOk();
-        $response->assertSee('Foo Announcement');
+
+        $titles = collect($response->viewData('page')['props']['announcements']['data'])
+            ->pluck('title');
+
+        $this->assertTrue($titles->contains('Foo Announcement'));
     }
 
-    
     public function test_guests_cannot_create_announcements()
     {
         $this->post('/announcements', $this->validParams())->assertRedirect('login');
@@ -62,7 +63,6 @@ class AnnouncementsTest extends TestCase
         $this->assertEquals(0, Announcement::count());
     }
 
-    
     public function test_users_without_appropriate_permission_cannot_create_announcements()
     {
         $user = UserFactory::user()->create();
@@ -72,7 +72,6 @@ class AnnouncementsTest extends TestCase
         $this->assertEquals(0, Announcement::count());
     }
 
-    
     public function test_users_with_appropriate_permission_can_create_announcements()
     {
         Mail::fake();
@@ -92,7 +91,6 @@ class AnnouncementsTest extends TestCase
         Mail::assertNothingSent();
     }
 
-    
     public function test_title_field_is_required_when_creating_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
@@ -106,7 +104,6 @@ class AnnouncementsTest extends TestCase
             ->assertSessionHasErrors('title');
     }
 
-    
     public function test_body_field_is_required_when_creating_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
@@ -120,7 +117,6 @@ class AnnouncementsTest extends TestCase
             ->assertSessionHasErrors('body');
     }
 
-    
     public function test_an_email_notification_can_be_triggered_when_an_announcement_is_created()
     {
         Mail::fake();
@@ -141,7 +137,6 @@ class AnnouncementsTest extends TestCase
         });
     }
 
-    
     public function test_guests_cannot_view_an_announcement()
     {
         $announcement = Announcement::factory()->create();
@@ -150,7 +145,6 @@ class AnnouncementsTest extends TestCase
             ->assertRedirect('/login');
     }
 
-    
     public function test_authenticated_users_can_see_an_announcement()
     {
         $this->withoutExceptionHandling();
@@ -162,16 +156,17 @@ class AnnouncementsTest extends TestCase
 
         $announcement = Announcement::factory()->create($data);
 
-        $this->actingAs($user)->get('/announcements/'.$announcement->id)
-            ->assertOk()
-            ->assertSee($data['title']);
+        foreach ([$user, $admin] as $viewer) {
+            $page = $this->actingAs($viewer)
+                ->get('/announcements/'.$announcement->id)
+                ->assertOk()
+                ->viewData('page');
 
-        $this->actingAs($admin)->get('/announcements/'.$announcement->id)
-            ->assertOk()
-            ->assertSee($data['title']);
+            $this->assertSame('announcements::Show', $page['component']);
+            $this->assertSame($data['title'], $page['props']['announcement']['title']);
+        }
     }
 
-    
     public function test_guests_cannot_edit_announcements()
     {
         $announcement = Announcement::factory()->create();
@@ -183,7 +178,6 @@ class AnnouncementsTest extends TestCase
         $this->assertEquals($announcement->body, $announcement->fresh()->body);
     }
 
-    
     public function test_users_with_appropriate_permissions_can_edit_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
@@ -202,7 +196,6 @@ class AnnouncementsTest extends TestCase
         $this->assertEquals($data['body'], $announcement->fresh()->body);
     }
 
-    
     public function test_title_field_is_required_when_updating_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
@@ -218,7 +211,6 @@ class AnnouncementsTest extends TestCase
             ->assertSessionHasErrors('title');
     }
 
-    
     public function test_body_field_is_required_when_updating_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
@@ -234,7 +226,6 @@ class AnnouncementsTest extends TestCase
             ->assertSessionHasErrors('body');
     }
 
-    
     public function test_guests_cannot_delete_an_announcement()
     {
         $announcement = Announcement::factory()->create();
@@ -244,7 +235,6 @@ class AnnouncementsTest extends TestCase
         $this->assertNotNull($announcement->fresh());
     }
 
-    
     public function test_users_without_appropriate_permission_cannot_delete_an_announcement()
     {
         $user = UserFactory::user()->create();
@@ -257,7 +247,6 @@ class AnnouncementsTest extends TestCase
         $this->assertNotNull($announcement->fresh());
     }
 
-    
     public function test_users_with_appropriate_permission_can_delete_an_announcement()
     {
         $user = UserFactory::user()->withPermissions('announcements.manage')->create();
@@ -270,13 +259,11 @@ class AnnouncementsTest extends TestCase
         $this->assertNull($announcement->fresh());
     }
 
-    
     public function test_guests_cannot_view_announcement_list()
     {
         $this->get('/announcements/list')->assertRedirect('login');
     }
 
-    
     public function test_any_authenticated_user_can_view_announcement_list()
     {
         $user = UserFactory::user()->create();
@@ -284,15 +271,21 @@ class AnnouncementsTest extends TestCase
         $announcementA = Announcement::factory()->create();
         $announcementB = Announcement::factory()->create();
 
-        $this->actingAs($user)
-            ->get('/announcements/list')
-            ->assertSee($announcementA->title)
-            ->assertSee($announcementA->parsed_body)
-            ->assertSee($announcementB->title)
-            ->assertSee($announcementB->parsed_body);
+        $cards = collect(
+            $this->actingAs($user)
+                ->get('/announcements/list')
+                ->viewData('page')['props']['announcements']['data']
+        );
+
+        foreach ([$announcementA, $announcementB] as $announcement) {
+            $card = $cards->firstWhere('id', $announcement->id);
+
+            $this->assertNotNull($card);
+            $this->assertSame($announcement->title, $card['title']);
+            $this->assertSame((string) $announcement->parsed_body, $card['parsedBody']);
+        }
     }
 
-    
     public function test_authenticated_users_can_see_the_announcements_header_section()
     {
         $user = UserFactory::user()->create();
@@ -301,14 +294,14 @@ class AnnouncementsTest extends TestCase
 
         Announcement::factory()->create($data);
 
-        $this->actingAs($user)
-            ->get('/')
-            ->assertSee('id="announcements-icon"', false)
-            ->assertSee('id="announcementsDropdown"', false)
-            ->assertSee($data['title']);
+        // The bell is contributed to the host navbar as a slot, so what matters
+        // is that the slot is registered and carries the announcements.
+        $bell = $this->navbarBell($this->actingAs($user)->get('/'));
+
+        $this->assertNotNull($bell);
+        $this->assertContains($data['title'], collect($bell['props']['announcements'])->pluck('title'));
     }
 
-    
     public function test_a_red_dot_indicator_is_displayed_if_user_has_unread_announcements()
     {
         Announcement::factory()->create([
@@ -323,16 +316,11 @@ class AnnouncementsTest extends TestCase
             'announcements_last_read_at' => now()->subMinutes(5),
         ]);
 
-        $this->actingAs($userA)
-            ->get('/')
-            ->assertDontSee('activity-badge');
-
-        $this->actingAs($userB)
-            ->get('/')
-            ->assertSee('activity-badge');
+        // `unread` drives the dot on the bell.
+        $this->assertFalse($this->navbarBell($this->actingAs($userA)->get('/'))['props']['unread']);
+        $this->assertTrue($this->navbarBell($this->actingAs($userB)->get('/'))['props']['unread']);
     }
 
-    
     public function test_user_announcements_can_be_marked_as_read()
     {
         $user = UserFactory::user()->create([
@@ -348,6 +336,17 @@ class AnnouncementsTest extends TestCase
             now()->format('Y-m-d H:i:s'),
             $user->fresh()->announcements_last_read_at
         );
+    }
+
+    /**
+     * The bell slot this plugin contributes to the host navbar.
+     *
+     * @return array{component: string, props: array<string, mixed>}|null
+     */
+    private function navbarBell(TestResponse $response): ?array
+    {
+        return collect($response->viewData('page')['props']['vanguard']['slots']['navbar:items'])
+            ->firstWhere('component', 'announcements::NavbarBell');
     }
 
     private function validParams(array $overrides = [])
