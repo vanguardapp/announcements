@@ -115,6 +115,7 @@ function remove(announcement: AnnouncementRow): void {
                                             icon="fas fa-edit"
                                             text
                                             rounded
+                                            severity="secondary"
                                             :aria-label="__('Edit Announcement')"
                                         />
                                     </Link>
@@ -125,7 +126,7 @@ function remove(announcement: AnnouncementRow): void {
                                         icon="fas fa-trash"
                                         text
                                         rounded
-                                        severity="danger"
+                                        severity="secondary"
                                         :aria-label="__('Delete Announcement')"
                                         @click="remove(announcement)"
                                     />
