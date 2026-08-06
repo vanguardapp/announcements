@@ -1,299 +1,252 @@
 <?php
 
-namespace Vanguard\Announcements\Tests\Feature\Api;
-
 use Carbon\Carbon;
 use Facades\Tests\Setup\UserFactory;
-use Mail;
 use Tests\Feature\ApiTestCase;
 use Vanguard\Announcements\Announcement;
 use Vanguard\Announcements\Database\Seeders\AnnouncementsDatabaseSeeder;
 use Vanguard\Announcements\Http\Resources\AnnouncementResource;
 use Vanguard\Announcements\Mail\AnnouncementEmail;
 
-class AnnouncementsTest extends ApiTestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
+uses(ApiTestCase::class);
 
-        $this->artisan('db:seed', ['--class' => AnnouncementsDatabaseSeeder::class]);
-    }
+beforeEach(function () {
+    $this->artisan('db:seed', ['--class' => AnnouncementsDatabaseSeeder::class]);
+});
 
-    
-    public function test_guests_cannot_paginate_announcements()
-    {
-        $this->getJson('/api/announcements')->assertStatus(401);
-    }
+test('guests cannot paginate announcements', function () {
+    $this->getJson('/api/announcements')->assertStatus(401);
+});
 
-    
-    public function test_any_authenticated_users_can_paginate_announcements()
-    {
-        $user = UserFactory::user()->create();
-        $announcements = Announcement::factory()->times(11)->create();
+test('any authenticated users can paginate announcements', function () {
+    $user = UserFactory::user()->create();
+    $announcements = Announcement::factory()->times(11)->create();
 
-        $response = $this->actingAs($user, self::API_GUARD)
-            ->getJson('/api/announcements?per_page=10')
-            ->assertOk();
+    $response = $this->actingAs($user, self::API_GUARD)
+        ->getJson('/api/announcements?per_page=10')
+        ->assertOk();
 
-        $transformed = AnnouncementResource::collection($announcements->take(10))->resolve();
+    $transformed = AnnouncementResource::collection($announcements->take(10))->resolve();
 
-        $this->assertEquals($response->json('data'), $transformed);
-        $response->assertJson([
-            'meta' => [
-                'current_page' => 1,
-                'from' => 1,
-                'to' => 10,
-                'last_page' => 2,
-                'path' => url('api/announcements'),
-                'total' => 11,
-                'per_page' => 10,
-            ],
-        ]);
-    }
+    $this->assertEquals($response->json('data'), $transformed);
+    $response->assertJson([
+        'meta' => [
+            'current_page' => 1,
+            'from' => 1,
+            'to' => 10,
+            'last_page' => 2,
+            'path' => url('api/announcements'),
+            'total' => 11,
+            'per_page' => 10,
+        ],
+    ]);
+});
 
-    
-    public function test_paginate_announcements_with_more_records_per_page_than_allowed()
-    {
-        $this->actingAs($this->validUser(), self::API_GUARD)
-            ->getJson('/api/announcements?per_page=140')
-            ->assertStatus(422);
-    }
+test('paginate announcements with more records per page than allowed', function () {
+    $this->actingAs(validUser(), self::API_GUARD)
+        ->getJson('/api/announcements?per_page=140')
+        ->assertStatus(422);
+});
 
-    
-    public function test_guests_cannot_create_announcements()
-    {
-        $this->postJson('/api/announcements', $this->validParams())
-            ->assertUnauthorized();
+test('guests cannot create announcements', function () {
+    $this->postJson('/api/announcements', validApiParams())
+        ->assertUnauthorized();
 
-        $this->assertEquals(0, Announcement::count());
-    }
+    $this->assertEquals(0, Announcement::count());
+});
 
-    
-    public function test_users_without_appropriate_permission_cannot_create_announcements()
-    {
-        $user = UserFactory::user()->create();
+test('users without appropriate permission cannot create announcements', function () {
+    $user = UserFactory::user()->create();
 
-        $this->actingAs($user, self::API_GUARD)
-            ->postJson('/api/announcements', $this->validParams())
-            ->assertForbidden();
+    $this->actingAs($user, self::API_GUARD)
+        ->postJson('/api/announcements', validApiParams())
+        ->assertForbidden();
 
-        $this->assertEquals(0, Announcement::count());
-    }
+    $this->assertEquals(0, Announcement::count());
+});
 
-    
-    public function test_users_with_appropriate_permission_can_create_announcements()
-    {
-        $user = $this->validUser();
-        $data = $this->validParams();
+test('users with appropriate permission can create announcements', function () {
+    $user = validUser();
+    $data = validApiParams();
 
-        $response = $this->actingAs($user, self::API_GUARD)
-            ->postJson('/api/announcements', $data)
-            ->assertStatus(201);
+    $response = $this->actingAs($user, self::API_GUARD)
+        ->postJson('/api/announcements', $data)
+        ->assertStatus(201);
 
-        $announcement = Announcement::first();
+    $announcement = Announcement::first();
 
-        $response->assertExactJson([
+    $response->assertExactJson([
+        'data' => (new AnnouncementResource($announcement))->resolve(),
+    ]);
+
+    $this->assertEquals($user->id, $announcement->user_id);
+    $this->assertEquals($data['title'], $announcement->title);
+    $this->assertEquals($data['body'], $announcement->body);
+});
+
+test('an email notification can be triggered when an announcement is created', function () {
+    Mail::fake();
+
+    $data = validApiParams(['email_notification' => true]);
+
+    $this->actingAs(validUser(), self::API_GUARD)
+        ->postJson('/api/announcements', $data)
+        ->assertStatus(201);
+
+    $announcement = Announcement::first();
+
+    Mail::assertQueued(AnnouncementEmail::class, function ($mail) use ($announcement) {
+        return $mail->announcement->id === $announcement->id;
+    });
+});
+
+test('title field is required when creating an announcement', function () {
+    $data = validApiParams(['title' => '']);
+
+    $this->actingAs(validUser(), self::API_GUARD)
+        ->postJson('/api/announcements', $data)
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('title');
+
+    $this->assertEquals(0, Announcement::count());
+});
+
+test('body field is required when creating an announcement', function () {
+    $data = validApiParams(['body' => '']);
+
+    $this->actingAs(validUser(), self::API_GUARD)
+        ->postJson('/api/announcements', $data)
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('body');
+
+    $this->assertEquals(0, Announcement::count());
+});
+
+test('guests cannot view an announcement', function () {
+    $announcement = Announcement::factory()->create();
+
+    $this->getJson("/api/announcements/{$announcement->id}")
+        ->assertUnauthorized();
+});
+
+test('authenticated users can view any announcement', function () {
+    $user = UserFactory::user()->create();
+    $announcement = Announcement::factory()->create();
+
+    $this->actingAs($user, self::API_GUARD)
+        ->getJson("/api/announcements/{$announcement->id}")
+        ->assertOk()
+        ->assertExactJson([
             'data' => (new AnnouncementResource($announcement))->resolve(),
         ]);
+});
 
-        $this->assertEquals($user->id, $announcement->user_id);
-        $this->assertEquals($data['title'], $announcement->title);
-        $this->assertEquals($data['body'], $announcement->body);
-    }
+test('guests cannot update an announcement', function () {
+    $announcement = Announcement::factory()->create();
 
-    
-    public function test_an_email_notification_can_be_triggered_when_an_announcement_is_created()
-    {
-        Mail::fake();
+    $this->putJson("/api/announcements/{$announcement->id}", validApiParams())
+        ->assertUnauthorized();
+});
 
-        $data = $this->validParams(['email_notification' => true]);
+test('users without approprite permission cannot update an announcement', function () {
+    $user = UserFactory::user()->create();
+    $announcement = Announcement::factory()->create();
 
-        $this->actingAs($this->validUser(), self::API_GUARD)
-            ->postJson('/api/announcements', $data)
-            ->assertStatus(201);
+    $this->actingAs($user, self::API_GUARD)
+        ->putJson("/api/announcements/{$announcement->id}", validApiParams())
+        ->assertForbidden();
+});
 
-        $announcement = Announcement::first();
+test('users with approprite permission can update an announcement', function () {
+    $user = validUser();
+    $announcement = Announcement::factory()->create();
 
-        Mail::assertQueued(AnnouncementEmail::class, function ($mail) use ($announcement) {
-            return $mail->announcement->id === $announcement->id;
-        });
-    }
-
-    
-    public function test_title_field_is_required_when_creating_an_announcement()
-    {
-        $data = $this->validParams(['title' => '']);
-
-        $this->actingAs($this->validUser(), self::API_GUARD)
-            ->postJson('/api/announcements', $data)
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('title');
-
-        $this->assertEquals(0, Announcement::count());
-    }
-
-    
-    public function test_body_field_is_required_when_creating_an_announcement()
-    {
-        $data = $this->validParams(['body' => '']);
-
-        $this->actingAs($this->validUser(), self::API_GUARD)
-            ->postJson('/api/announcements', $data)
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('body');
-
-        $this->assertEquals(0, Announcement::count());
-    }
-
-    
-    public function test_guests_cannot_view_an_announcement()
-    {
-        $announcement = Announcement::factory()->create();
-
-        $this->getJson("/api/announcements/{$announcement->id}")
-            ->assertUnauthorized();
-    }
-
-    
-    public function test_authenticated_users_can_view_any_announcement()
-    {
-        $user = UserFactory::user()->create();
-        $announcement = Announcement::factory()->create();
-
-        $this->actingAs($user, self::API_GUARD)
-            ->getJson("/api/announcements/{$announcement->id}")
-            ->assertOk()
-            ->assertExactJson([
-                'data' => (new AnnouncementResource($announcement))->resolve(),
-            ]);
-    }
-
-    
-    public function test_guests_cannot_update_an_announcement()
-    {
-        $announcement = Announcement::factory()->create();
-
-        $this->putJson("/api/announcements/{$announcement->id}", $this->validParams())
-            ->assertUnauthorized();
-    }
-
-    
-    public function test_users_without_approprite_permission_cannot_update_an_announcement()
-    {
-        $user = UserFactory::user()->create();
-        $announcement = Announcement::factory()->create();
-
-        $this->actingAs($user, self::API_GUARD)
-            ->putJson("/api/announcements/{$announcement->id}", $this->validParams())
-            ->assertForbidden();
-    }
-
-    
-    public function test_users_with_approprite_permission_can_update_an_announcement()
-    {
-        $user = $this->validUser();
-        $announcement = Announcement::factory()->create();
-
-        $this->actingAs($user, self::API_GUARD)
-            ->putJson("/api/announcements/{$announcement->id}", $this->validParams())
-            ->assertOk()
-            ->assertExactJson([
-                'data' => (new AnnouncementResource($announcement->fresh()))->resolve(),
-            ]);
-    }
-
-    
-    public function test_title_field_is_required_when_updating_an_announcement()
-    {
-        $data = $this->validParams(['title' => '']);
-        $announcement = Announcement::factory()->create();
-
-        $this->actingAs($this->validUser(), self::API_GUARD)
-            ->putJson("/api/announcements/{$announcement->id}", $data)
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('title');
-    }
-
-    
-    public function test_body_field_is_required_when_updating_an_announcement()
-    {
-        $data = $this->validParams(['body' => '']);
-        $announcement = Announcement::factory()->create();
-
-        $this->actingAs($this->validUser(), self::API_GUARD)
-            ->putJson("/api/announcements/{$announcement->id}", $data)
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('body');
-    }
-
-    
-    public function test_guests_cannot_delete_an_announcement()
-    {
-        $announcement = Announcement::factory()->create();
-
-        $this->deleteJson("/api/announcements/{$announcement->id}")
-            ->assertUnauthorized();
-    }
-
-    
-    public function test_users_without_appropriate_permission_cannot_delete_an_announcement()
-    {
-        $user = UserFactory::user()->create();
-        $announcement = Announcement::factory()->create();
-
-        $this->actingAs($user, self::API_GUARD)
-            ->deleteJson("/api/announcements/{$announcement->id}")
-            ->assertForbidden();
-    }
-
-    
-    public function test_users_with_appropriate_permission_can_delete_an_announcement()
-    {
-        $announcement = Announcement::factory()->create();
-
-        $this->actingAs($this->validUser(), self::API_GUARD)
-            ->deleteJson("/api/announcements/{$announcement->id}")
-            ->assertOk();
-
-        $this->assertNull($announcement->fresh());
-    }
-
-    
-    public function test_user_announcements_can_be_marked_as_read()
-    {
-        $user = UserFactory::user()->create([
-            'announcements_last_read_at' => null,
+    $this->actingAs($user, self::API_GUARD)
+        ->putJson("/api/announcements/{$announcement->id}", validApiParams())
+        ->assertOk()
+        ->assertExactJson([
+            'data' => (new AnnouncementResource($announcement->fresh()))->resolve(),
         ]);
+});
 
-        Carbon::setTestNow(now());
+test('title field is required when updating an announcement', function () {
+    $data = validApiParams(['title' => '']);
+    $announcement = Announcement::factory()->create();
 
-        $this->actingAs($user, self::API_GUARD)
-            ->post('/api/announcements/read');
+    $this->actingAs(validUser(), self::API_GUARD)
+        ->putJson("/api/announcements/{$announcement->id}", $data)
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('title');
+});
 
-        $this->assertEquals(
-            now()->format('Y-m-d H:i:s'),
-            $user->fresh()->announcements_last_read_at
-        );
-    }
+test('body field is required when updating an announcement', function () {
+    $data = validApiParams(['body' => '']);
+    $announcement = Announcement::factory()->create();
 
-    /**
-     * @return mixed
-     */
-    private function validUser()
-    {
-        return UserFactory::user()->withPermissions('announcements.manage')->create();
-    }
+    $this->actingAs(validUser(), self::API_GUARD)
+        ->putJson("/api/announcements/{$announcement->id}", $data)
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('body');
+});
 
-    /**
-     * @return array
-     */
-    private function validParams(array $overrides = [])
-    {
-        return array_merge([
-            'title' => 'Foo Announcement',
-            'body' => 'This is the announcement body.',
-            'email_notification' => false,
-        ], $overrides);
-    }
+test('guests cannot delete an announcement', function () {
+    $announcement = Announcement::factory()->create();
+
+    $this->deleteJson("/api/announcements/{$announcement->id}")
+        ->assertUnauthorized();
+});
+
+test('users without appropriate permission cannot delete an announcement', function () {
+    $user = UserFactory::user()->create();
+    $announcement = Announcement::factory()->create();
+
+    $this->actingAs($user, self::API_GUARD)
+        ->deleteJson("/api/announcements/{$announcement->id}")
+        ->assertForbidden();
+});
+
+test('users with appropriate permission can delete an announcement', function () {
+    $announcement = Announcement::factory()->create();
+
+    $this->actingAs(validUser(), self::API_GUARD)
+        ->deleteJson("/api/announcements/{$announcement->id}")
+        ->assertOk();
+
+    $this->assertNull($announcement->fresh());
+});
+
+test('user announcements can be marked as read', function () {
+    $user = UserFactory::user()->create([
+        'announcements_last_read_at' => null,
+    ]);
+
+    Carbon::setTestNow(now());
+
+    $this->actingAs($user, self::API_GUARD)
+        ->post('/api/announcements/read');
+
+    $this->assertEquals(
+        now()->format('Y-m-d H:i:s'),
+        $user->fresh()->announcements_last_read_at
+    );
+});
+
+/**
+ * @return mixed
+ */
+function validUser()
+{
+    return UserFactory::user()->withPermissions('announcements.manage')->create();
+}
+
+/**
+ * @return array
+ */
+function validApiParams(array $overrides = [])
+{
+    return array_merge([
+        'title' => 'Foo Announcement',
+        'body' => 'This is the announcement body.',
+        'email_notification' => false,
+    ], $overrides);
 }
