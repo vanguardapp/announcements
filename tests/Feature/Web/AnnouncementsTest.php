@@ -46,6 +46,25 @@ test('users with appropriate permission can view the announcement list', functio
     $this->assertTrue($titles->contains('Foo Announcement'));
 });
 
+test('the creator is only linked for viewers who may open a profile', function (array $permissions, bool $linked) {
+    $user = UserFactory::user()->withPermissions(...$permissions)->create();
+
+    Announcement::factory()->create(['user_id' => $user->id]);
+
+    $row = $this->actingAs($user)
+        ->get('/announcements')
+        ->viewData('page')['props']['announcements']['data'][0];
+
+    // Every route under users/{user} is guarded by users.manage, so without it
+    // the link would only lead to a 403.
+    $linked
+        ? $this->assertSame(route('users.show', $user), $row['creatorUrl'])
+        : $this->assertNull($row['creatorUrl']);
+})->with([
+    'announcements only' => [['announcements.manage'], false],
+    'announcements and users' => [['announcements.manage', 'users.manage'], true],
+]);
+
 test('guests cannot create announcements', function () {
     $this->post('/announcements', validWebParams())->assertRedirect('login');
 

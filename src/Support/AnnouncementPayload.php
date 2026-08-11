@@ -40,12 +40,26 @@ class AnnouncementPayload
             'title' => Str::limit($announcement->title, 50),
             'creator' => $announcement->creator->username ?: __('N/A'),
             'creatorAvatar' => $announcement->creator->present()->avatar,
-            'creatorUrl' => route('users.show', $announcement->creator),
+            'creatorUrl' => self::creatorUrl($announcement),
             'createdAt' => $announcement->created_at->format(config('app.date_format')),
             'showUrl' => route('announcements.show', $announcement),
             'editUrl' => route('announcements.edit', $announcement),
             'deleteUrl' => route('announcements.destroy', $announcement),
         ];
+    }
+
+    /**
+     * The creator's profile, or null when the viewer may not open it.
+     *
+     * This table is reached with announcements.manage, which says nothing about
+     * users.manage, and that is what guards every route under users/{user}. A
+     * moderator without it would otherwise be offered a link to a 403.
+     */
+    private static function creatorUrl(Announcement $announcement): ?string
+    {
+        return auth()->user()?->hasPermission('users.manage')
+            ? route('users.show', $announcement->creator)
+            : null;
     }
 
     public static function rows(LengthAwarePaginator $announcements): LengthAwarePaginator

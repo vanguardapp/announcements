@@ -6,7 +6,6 @@ import {
     Pagination,
     Tooltip,
     useConfirmDelete,
-    usePermissions,
     useTranslations,
 } from '@vanguard/ui';
 
@@ -15,7 +14,8 @@ interface AnnouncementRow {
     title: string;
     creator: string;
     creatorAvatar: string;
-    creatorUrl: string;
+    /** Null when the viewer lacks users.manage and so cannot open the profile. */
+    creatorUrl: string | null;
     createdAt: string;
     showUrl: string;
     editUrl: string;
@@ -30,7 +30,6 @@ defineProps<{
 }>();
 
 const { __ } = useTranslations();
-const { can } = usePermissions();
 const { confirmDelete } = useConfirmDelete();
 
 function remove(announcement: AnnouncementRow): void {
@@ -78,8 +77,14 @@ function remove(announcement: AnnouncementRow): void {
                             :key="announcement.id"
                             class="border-b border-slate-50 odd:bg-slate-50/60"
                         >
-                            <td class="px-4 py-3">
-                                <Link :href="announcement.creatorUrl">
+                            <td>
+                                <!-- A plain div when there is nowhere to go, so the
+                                     image and its box cannot drift apart. -->
+                                <component
+                                    :is="announcement.creatorUrl ? Link : 'div'"
+                                    :href="announcement.creatorUrl"
+                                    class="flex items-center justify-center"
+                                >
                                     <img
                                         :src="announcement.creatorAvatar"
                                         :alt="announcement.creator"
@@ -87,11 +92,11 @@ function remove(announcement: AnnouncementRow): void {
                                         height="40"
                                         class="size-10 rounded-full object-cover"
                                     />
-                                </Link>
+                                </component>
                             </td>
                             <td class="px-4 py-3">
                                 <Link
-                                    v-if="can('users.manage')"
+                                    v-if="announcement.creatorUrl"
                                     :href="announcement.creatorUrl"
                                     class="text-primary-600 hover:underline"
                                 >
