@@ -98,23 +98,70 @@ The suite runs against a Vanguard application, because this plugin is written
 for Vanguard rather than for Laravel in general: its listeners subscribe to
 `App\Events\*` and its controllers extend the host's base controller.
 
-Keep a Vanguard checkout beside this repository, with the plugin installed into
-it, then:
+`tests/bootstrap.php` boots that application's autoloader. This repository has no
+`vendor` directory of its own and nothing to `composer install`: the suite runs
+on the host's Pest binary.
 
-```bash
-vendor/bin/pest
+### Setting up the host
+
+Keep a Vanguard checkout beside this repository, and install the plugin into it
+**as a path repository**, since the host's autoloader is what maps
+`Vanguard\Announcements\` onto `src`. In the host's `composer.json`:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../vanguardapp-announcements",
+            "options": { "symlink": true }
+        }
+    ],
+    "require": {
+        "vanguardapp/announcements": "*"
+    }
+}
 ```
 
-If the checkout lives elsewhere, point `VANGUARD_PATH` at it:
+Required from a tag instead, the suite exercises the release sitting in the
+host's `vendor` directory and silently ignores your edits.
+
+### Running the suite
 
 ```bash
-VANGUARD_PATH=/path/to/vanguard vendor/bin/pest
+composer test
 ```
 
-The tests are Pest tests, and each file names its base class with `uses()`
-rather than relying on a `tests/Pest.php`. Pest resolves that file from the
-root it is run from, which is the host application whenever this suite runs
-through the host's binary, so a `Pest.php` here would never be loaded.
+Arguments go after `--`. PHPUnit reads its configuration from the working
+directory, so the `phpunit.xml` here is the one that applies and the usual
+selectors behave as they normally do:
+
+```bash
+composer test -- --compact
+composer test -- tests/Feature/Web/AnnouncementsTest.php
+composer test -- --filter=notification
+```
+
+If the checkout is not at `../vanguard`, point `VANGUARD_PATH` at it. This is
+also the hook a pipeline uses:
+
+```bash
+VANGUARD_PATH=/path/to/vanguard composer test
+```
+
+That default is expanded by the shell, which Windows `cmd` does not do. Call the
+binary directly there:
+
+```
+..\vanguard\vendor\bin\pest
+```
+
+### Why the host's binary
+
+Pest takes its root from the autoloader beside the binary, which is the host. It
+boots the host's `tests/Pest.php` and never one placed here, so every file in
+this suite names its base class with `uses()` rather than relying on a shared
+bootstrap.
 
 
 ## License

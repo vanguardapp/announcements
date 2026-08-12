@@ -32,9 +32,12 @@
             "Vanguard\\Announcements\\Database\\Factories\\": "database/factories/"
         }
     },
-     "autoload-dev": {
+    "autoload-dev": {
         "psr-4": {
             "Vanguard\\Announcements\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": "${VANGUARD_PATH:-../vanguard}/vendor/bin/pest"
     }
 }

@@ -24,7 +24,7 @@ if (! is_file($autoload)) {
     These tests run against the host application. Clone Vanguard beside this
     repository, or set VANGUARD_PATH to an existing checkout:
 
-        VANGUARD_PATH=/path/to/vanguard vendor/bin/phpunit
+        VANGUARD_PATH=/path/to/vanguard composer test
 
 
     MESSAGE);
