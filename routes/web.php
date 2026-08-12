@@ -10,7 +10,7 @@
 |
 */
 
-Route::group(['middleware' => ['auth', 'verified']], function () {
+Route::group(['middleware' => ['auth', 'verified', 'password-change']], function () {
     Route::get('announcements/list', 'AnnouncementListController@index')
         ->name('announcements.list');
 
