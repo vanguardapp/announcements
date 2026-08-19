@@ -3,7 +3,7 @@ system.
 
 ## Installation
 
-This plugin requires Vanguard `4.0.0` or greater.
+This plugin requires Vanguard `12.0.0` or greater.
 
 ### Installation via Composer
 
@@ -14,7 +14,7 @@ by running the following command
 composer require vanguardapp/announcements
 ```
 
-The composer will install the plugin for you as well as it's dependencies.
+The composer will install the plugin for you as well as its dependencies.
 
 The next step is to register the plugin by adding the 
 `\Vanguard\Announcements\Announcements::class` 
